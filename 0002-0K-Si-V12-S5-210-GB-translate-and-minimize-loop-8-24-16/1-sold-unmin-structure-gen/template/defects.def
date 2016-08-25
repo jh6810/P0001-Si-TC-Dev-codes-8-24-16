@@ -1,6 +1,0 @@
- 1  - if not 0, create a grain boundary
- 1  - if not 0, create a planar defect. Open new line X, Y & Z
- x_in 0.0 z_in
- 0  - if not 0, open new lines with sites where to place vacancies 
- 0  - if not 0, open new lines with sites where to place antisites
- 0  - if not 0, open new lines with coordinates of interstitials
