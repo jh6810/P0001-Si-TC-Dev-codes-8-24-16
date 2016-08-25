@@ -1,0 +1,17 @@
+5.437429 0.000000 0.000000 - basis vectors of the lattice
+0.000000 5.437429 0.000000
+0.000000 0.000000 5.437429      
+ 8                           - the number of sublattices
+     0.        0.        0.        1  - sublattice displacements
+2.718715 2.718715 0.000000 1
+2.718715 0.000000 2.718715 1
+0.000000 2.718715 2.718715 1
+1.359357 1.359357 1.359357 1
+4.078072 4.075170 1.359357 1
+4.078072 1.359357 4.078072 1
+1.359357 4.078072 4.078072 1
+       1.0         -2.0      0.0     - lattice block axes    
+       2.0         1.0      0.0    
+       0.0         0.0      1.0      
+ -10  -80  -5        - the inner block xdimensions
+ 8.5 - search radius to construct outer block (if <0, use cutoff) 

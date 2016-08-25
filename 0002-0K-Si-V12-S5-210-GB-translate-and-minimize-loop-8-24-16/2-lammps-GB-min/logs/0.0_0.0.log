@@ -1,0 +1,219 @@
+LAMMPS (30 Jul 2016)
+units 		metal
+dimension	3
+boundary	p	p	p
+atom_style	atomic
+
+
+variable N_steps equal 1000
+variable thermo_out equal 1
+
+variable minimumenergy equal -4.630371
+
+compute eng all pe/atom
+compute eatoms all reduce sum c_eng
+
+read_data structure.lammps
+  orthogonal box = (-12.1586 -97.2678 -16.3124) to (12.1584 97.2676 10.8748)
+  1 by 2 by 1 MPI processor grid
+  reading atoms ...
+  6400 atoms
+  reading velocities ...
+  6400 velocities
+
+##load potential
+pair_style tersoff/mod
+pair_coeff * * pot/Si.tersoff-V12.mod Si
+mass * 28.0855
+
+
+# ---------- Run Minimization ---------------------
+reset_timestep 0
+thermo 10
+thermo_style custom step pe lx ly lz press pxx pyy pzz c_eatoms
+min_style cg
+minimize 1e-15 1e-15 5000 5000
+WARNING: Resetting reneighboring criteria during minimization (../min.cpp:168)
+Neighbor list info ...
+  1 neighbor list requests
+  update every 1 steps, delay 0 steps, check yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 5.2
+  ghost atom cutoff = 5.2
+  binsize = 2.6 -> bins = 10 75 11
+Memory usage per processor = 3.77988 Mbytes
+Step PotEng Lx Ly Lz Press Pxx Pyy Pzz eatoms 
+       0   -29514.202     24.31692    194.53538     27.18715   -68.168468    990.64126   -128.22511   -1066.9216   -29514.202 
+      10   -29580.378     24.31692    194.53538     27.18715    747.50986    1614.9393    507.42571    120.16458   -29580.378 
+      20   -29583.796     24.31692    194.53538     27.18715    856.20357    1704.0089    564.09982      300.502   -29583.796 
+      30   -29585.044     24.31692    194.53538     27.18715    888.22284    1708.5978    560.59121    395.47952   -29585.044 
+      40   -29585.704     24.31692    194.53538     27.18715    903.11427     1703.786    564.64905    440.90775   -29585.704 
+      50   -29586.103     24.31692    194.53538     27.18715    915.94631    1714.4523    555.58067    477.80596   -29586.103 
+      60   -29587.651     24.31692    194.53538     27.18715    957.70317    1734.4483    523.92899    614.73219   -29587.651 
+      70   -29587.818     24.31692    194.53538     27.18715    963.91525    1743.0183    515.49316    633.23432   -29587.818 
+      80   -29587.827     24.31692    194.53538     27.18715    963.65303    1743.9573    514.14374    632.85804   -29587.827 
+      90   -29587.828     24.31692    194.53538     27.18715    964.14291    1746.0001    513.38663    633.04202   -29587.828 
+     100   -29587.829     24.31692    194.53538     27.18715    963.73151    1747.5735    512.53926    631.08175   -29587.829 
+     110   -29587.829     24.31692    194.53538     27.18715     963.6341    1745.8723    514.01535    631.01464   -29587.829 
+     120   -29587.829     24.31692    194.53538     27.18715    963.76936    1745.7675    514.33435    631.20624   -29587.829 
+     130   -29587.829     24.31692    194.53538     27.18715    963.86111    1745.3206    514.89965    631.36312   -29587.829 
+     140   -29587.829     24.31692    194.53538     27.18715     963.9673    1744.5645    515.79201    631.54537   -29587.829 
+     150   -29587.829     24.31692    194.53538     27.18715    963.96358    1744.1142    516.27585    631.50068   -29587.829 
+     160   -29587.829     24.31692    194.53538     27.18715     963.9613    1744.0949    516.30232    631.48664   -29587.829 
+     170   -29587.829     24.31692    194.53538     27.18715    963.96187     1744.113    516.28772    631.48487   -29587.829 
+     180   -29587.829     24.31692    194.53538     27.18715    963.97158    1744.1668    516.24495    631.50305   -29587.829 
+     190   -29587.829     24.31692    194.53538     27.18715    963.97279    1744.1437    516.26654    631.50815   -29587.829 
+     200   -29587.829     24.31692    194.53538     27.18715    963.97315    1744.0696    516.34324    631.50662   -29587.829 
+     210   -29587.829     24.31692    194.53538     27.18715    963.96355    1743.9957    516.39856    631.49634   -29587.829 
+     220   -29587.829     24.31692    194.53538     27.18715    963.96456    1743.9781    516.41811    631.49745   -29587.829 
+     230   -29587.829     24.31692    194.53538     27.18715    963.96591    1743.9721    516.42713    631.49851   -29587.829 
+     234   -29587.829     24.31692    194.53538     27.18715    963.96606    1743.9708    516.42865    631.49869   -29587.829 
+Loop time of 29.0019 on 2 procs for 234 steps with 6400 atoms
+
+90.0% CPU use with 2 MPI tasks x no OpenMP threads
+
+Minimization stats:
+  Stopping criterion = energy tolerance
+  Energy initial, next-to-last, final = 
+        -29514.2016616     -29587.8287463     -29587.8287463
+  Force two-norm initial, final = 26.9057 2.7151e-05
+  Force max component initial, final = 2.66483 7.1325e-07
+  Final line search alpha, max atom move = 1 7.1325e-07
+  Iterations, force evaluations = 234 466
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 25.643     | 26.196     | 26.749     |  10.8 | 90.33
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 1.9238     | 2.4591     | 2.9944     |  34.1 |  8.48
+Output  | 0.0037935  | 0.0058526  | 0.0079117  |   2.7 |  0.02
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 0.3409     |            |       |  1.18
+
+Nlocal:    3200 ave 3200 max 3200 min
+Histogram: 2 0 0 0 0 0 0 0 0 0
+Nghost:    3604 ave 3604 max 3604 min
+Histogram: 2 0 0 0 0 0 0 0 0 0
+Neighs:    0 ave 0 max 0 min
+Histogram: 2 0 0 0 0 0 0 0 0 0
+FullNghs:  89760 ave 89760 max 89760 min
+Histogram: 2 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 179520
+Ave neighs/atom = 28.05
+Neighbor list builds = 0
+Dangerous builds = 0
+
+
+dump dump1 all custom 50 snap/snap.*.lammps id type x y z
+
+# ---------- Run Minimization 2---------------------
+# Now allow the box to expand/contract perpendicular to the grain boundary
+reset_timestep 0
+thermo 10
+thermo_style custom step pe lx ly lz press pxx pyy pzz c_eatoms
+fix 1 all box/relax y 0 vmax 0.001
+min_style cg
+minimize 1e-15 1e-15 5000 5000
+WARNING: Resetting reneighboring criteria during minimization (../min.cpp:168)
+Memory usage per processor = 5.27885 Mbytes
+Step PotEng Lx Ly Lz Press Pxx Pyy Pzz eatoms 
+       0   -29587.829     24.31692    194.53538     27.18715    963.96606    1743.9708    516.42865    631.49869   -29587.829 
+      10   -29587.835     24.31692    194.59025     27.18715    678.45751    1596.9843   0.12377912    438.26448   -29587.835 
+      20   -29587.835     24.31692    194.59037     27.18715    677.75604    1595.4725 0.0068941807    437.78876   -29587.835 
+      30   -29587.835     24.31692    194.59041     27.18715    677.56673    1594.9927 -0.0045904482    437.71209   -29587.835 
+      40   -29587.835     24.31692    194.59042     27.18715    677.52243    1594.8485 -0.017232747    437.73603   -29587.835 
+      50   -29587.835     24.31692    194.59042     27.18715    677.55506    1594.8889 -0.034066972    437.81033   -29587.835 
+      60   -29587.835     24.31692     194.5904     27.18715    677.65271    1595.1234 -0.067774971    437.90254   -29587.835 
+      70   -29587.835     24.31692     194.5904     27.18715     677.6301    1595.0663 0.0019574351    437.82198   -29587.835 
+      80   -29587.835     24.31692     194.5904     27.18715    677.64537    1595.2011 -0.010448995    437.74548   -29587.835 
+      90   -29587.835     24.31692    194.59039     27.18715    677.71395    1595.2819 -0.0023946807    437.86233   -29587.835 
+     100   -29587.835     24.31692    194.59041     27.18715    677.62506     1594.988 -0.058913688    437.94614   -29587.835 
+     110   -29587.835     24.31692    194.59042     27.18715    677.57658    1594.8919 -0.097488079    437.93532   -29587.835 
+     120   -29587.835     24.31692    194.59043     27.18715    677.50959    1594.7736  -0.15342477    437.90864   -29587.835 
+     130   -29587.835     24.31692    194.59045     27.18715    677.40804     1594.616  -0.24602744    437.85415   -29587.835 
+     140   -29587.835     24.31692    194.59049     27.18715    677.22939    1594.3863  -0.43486662    437.73669   -29587.835 
+     150   -29587.835     24.31692    194.59058     27.18715    676.73447    1593.9681   -1.1277711    437.36311   -29587.835 
+     160   -29587.835     24.31692    194.59048     27.18715    677.17586    1594.0703  0.019056611    437.43823   -29587.835 
+     170   -29587.835     24.31692    194.59051     27.18715    677.06642    1593.8431 -0.016440433    437.37261   -29587.835 
+     180   -29587.835     24.31692    194.59052     27.18715    677.00403    1593.8466  -0.14213924     437.3076   -29587.835 
+     190   -29587.835     24.31692    194.59054     27.18715    676.90673    1593.8171  -0.30470252    437.20777   -29587.835 
+     200   -29587.835     24.31692    194.59028     27.18715    678.23214    1594.0506      2.55228    438.09357   -29587.835 
+     202   -29587.835     24.31692     194.5905     27.18715    677.11823    1593.8954  0.051139348    437.40813   -29587.835 
+Loop time of 21.0679 on 2 procs for 202 steps with 6400 atoms
+
+99.6% CPU use with 2 MPI tasks x no OpenMP threads
+
+Minimization stats:
+  Stopping criterion = energy tolerance
+  Energy initial, next-to-last, final = 
+        -29587.8287463      -29587.834626      -29587.834626
+  Force two-norm initial, final = 41.4544 0.00443072
+  Force max component initial, final = 41.4544 0.00410502
+  Final line search alpha, max atom move = 1 0.00410502
+  Iterations, force evaluations = 202 404
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 20.529     | 20.565     | 20.6       |   0.8 | 97.61
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 0.21274    | 0.25039    | 0.28803    |   7.5 |  1.19
+Output  | 0.04239    | 0.043606   | 0.044822   |   0.6 |  0.21
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 0.2091     |            |       |  0.99
+
+Nlocal:    3200 ave 3200 max 3200 min
+Histogram: 2 0 0 0 0 0 0 0 0 0
+Nghost:    3857 ave 3857 max 3857 min
+Histogram: 2 0 0 0 0 0 0 0 0 0
+Neighs:    0 ave 0 max 0 min
+Histogram: 2 0 0 0 0 0 0 0 0 0
+FullNghs:  89520 ave 89520 max 89520 min
+Histogram: 2 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 179040
+Ave neighs/atom = 27.975
+Neighbor list builds = 0
+Dangerous builds = 0
+
+
+
+
+# ---------- Calculate GB Energy ---------------------
+
+variable esum equal "v_minimumenergy * count(all)"
+variable xseng equal "c_eatoms - (v_minimumenergy * count(all))"
+variable gbarea equal "lx * lz * 2"  #2 is for the 2 GB
+variable gbe equal "(c_eatoms - (v_minimumenergy * count(all)))/v_gbarea"
+variable gbemJm2 equal ${gbe}*16021.7733
+variable gbemJm2 equal 0.0351983272801154*16021.7733
+variable gbernd equal round(${gbemJm2})
+variable gbernd equal round(563.939620221215)
+variable gbeJm2 equal ${gbe}*16021.7733/1000.0
+variable gbeJm2 equal 0.0351983272801154*16021.7733/1000.0
+print "GB energy is ${gbemJm2} mJ/m^2"
+GB energy is 563.939620221215 mJ/m^2
+print "GB energy is ${gbeJm2} mJ/m^2"
+GB energy is 0.563939620221215 mJ/m^2
+
+print ${gbeJm2} file gbejm2.dat
+print 0.563939620221215 file gbejm2.dat
+0.563939620221215
+
+
+
+
+
+write_data snap/lammps_data.min #data file
+Neighbor list info ...
+  1 neighbor list requests
+  update every 1 steps, delay 10 steps, check yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 5.2
+  ghost atom cutoff = 5.2
+  binsize = 2.6 -> bins = 10 75 11
+
+
+Total wall time: 0:00:50
