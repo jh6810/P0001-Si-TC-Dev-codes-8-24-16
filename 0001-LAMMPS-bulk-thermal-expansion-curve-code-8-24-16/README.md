@@ -6,3 +6,4 @@
 # to run just modify run.sh to point to your LAMMPS executable and make run.sh  executable chmod a+x run.sh 
 # once you execute run.sh the entire process should generate a set of simulations at various temperatures and output a thermal expansion file t-vs-sf.dat
 # runtime ~ a few hours using 8 cores on a simple workstation
+# hello 
