@@ -1,0 +1,17 @@
+ 'out/sold_out0.out' - output file
+  1 - number of chemical species in the system ( .le. 4)
+ 'Cu'  63.546
+ 0 - interpolation of potl tables (0 - cubic spline, 1 - linear)
+ 0 - zero for regular EAM, nonzero for ADP
+ '/home/james/potentials/CuAg/pcu.dat'
+ '/home/james/potentials/CuAg/fcu.dat'
+ '/home/james/potentials/CuAg/F_cu.dat'
+ 1 - nonzero to generate a structure, zero to restart a run
+ 'gen_fcc.gen' 
+ 'defects.def'  - lattice defects
+  1 1 1 0.0 -initial deformation factors
+  0 - minimization mode
+  'none' - input file for minimization parameters
+  'out/config.plt'  - save final configuration in this file
+  'none'  'ta.md'  'cuag.md'  - MD file
+  'none'  'mc.mc' - MC file
