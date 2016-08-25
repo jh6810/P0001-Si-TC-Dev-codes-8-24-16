@@ -1,4 +1,6 @@
-
+#NOTE: THIS IS NOT A SHELL SCRIP IT IS A LAMMPS INPUT FILE THE EXT .sh 
+#      IS ONLY USED SO THAT TEXT EDITORS TREAT IT LIKE A SHELL SCIPT 
+#      BECAUSE BOTH HAVE THE SAME COMMENT FORMALISM # 
 #--------------------------------------------------------------------
 #CONTACT 
 #--------------------------------------------------------------------
