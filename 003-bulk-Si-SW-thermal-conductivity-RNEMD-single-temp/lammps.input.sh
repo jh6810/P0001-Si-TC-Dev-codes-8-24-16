@@ -28,13 +28,15 @@ variable a_o equal 5   	#Guess for un-min lattice constant
 variable rep_x equal 5   	#repeat lattice this many times in given direction
 variable rep_y equal 10   	#repeat lattice this many times in given direction
 variable rep_z equal 5   	#repeat lattice this many times in given direction
-variable T equal 100  		#desired temperature of run
+variable T equal 500  		#desired temperature of run
 
 ##NPT PARAM 
-variable N_EQ equal 500        #number of steps in equilibration period 
-variable N_PROD equal 1000    #number of steps in production period 
-variable N_PROD_NVT equal 1000    #number of steps in production period 
-variable thermo_save equal 25   #TD sampling rate 
+variable N_EQ equal 2500        #number of steps in equilibration period 
+variable N_PROD equal 10000    #number of steps in production period 
+variable N_PROD_NVT equal 5000    #number of steps in production period 
+variable thermo_save equal 500   #TD sampling rate 
+variable N_TC_EQ equal 10000
+variable N_TC equal 50000
 #variable DT equal 100	 	#temperature incriment in K 	
 #variable NUM_TEMPS equal 14	#temp mesh 1*DT,2*DT....NUM_TEMPS*DT	
 
@@ -76,7 +78,7 @@ thermo_style custom step pe c_2 press pxx pyy pzz v_a
 min_style cg 
 minimize 1e-25 1e-25 5000 10000 
 
-write_data output/lammps_data.0K.minimized #data file
+write_data output-1/lammps_data.0K.minimized #data file
 
 print "minimum-lattice constants: ${a}"
 
@@ -90,7 +92,7 @@ clear
 ##SIMULATION-2: Run NPT to determine thermal expansion factor for chosen temperature 
 ##--------------------------------------------------------------------
 
-log output/eq.log.${T}  #save TD output to this file	
+log output-1/eq.log.${T}  #save TD output to this file	
 
 units 		metal
 dimension	3
@@ -98,7 +100,7 @@ boundary	p	p	p
 atom_style	atomic
 
 #load structure
-read_data output/lammps_data.0K.minimized
+read_data output-1/lammps_data.0K.minimized
 
 velocity all create ${T} 4928459 rot yes mom yes dist gaussian
 
@@ -121,7 +123,7 @@ run ${N_EQ}
 
 #PROD RUN 
 reset_timestep 0
-log output/prod.log.${T}  #save TD output to this file	
+log output-1/prod.log.${T}  #save TD output to this file	
 variable Ti equal temp 	#K
 variable Pi equal press*0.0001 #GPa  
 
@@ -133,6 +135,8 @@ variable ave_SF_temp equal f_ave_SF
 variable ave_SF equal ${ave_SF_temp} # freezes value using ${}, otherwise lammps will try to compute using the fix 
 print ${ave_SF}
 
+write_data output-1/NPT-FINAL-STRUCTURE.${T}K #data file
+
 clear 
 
 
@@ -141,12 +145,19 @@ clear
 ##              randomize positions in NVT (also check pressure state)
 ##--------------------------------------------------------------------
 
-log output/eq_NVT.log.${T}  #save TD output to this file	
+units 		metal
+dimension	3
+boundary	p	p	p
+atom_style	atomic
+
+log output-1/eq_NVT.log.${T}  #save TD output to this file	
 
 ##load structure
-read_data output/lammps_data.0K.minimized
+read_data output-1/lammps_data.0K.minimized
 
 ##scale block and randomize velocities
+print ${ave_SF}
+
 change_box all x scale ${ave_SF} y scale ${ave_SF} z scale ${ave_SF} remap
 velocity all create ${T} 4928459 rot yes mom yes dist gaussian
 
@@ -161,10 +172,10 @@ fix 1 all nvt temp ${T} ${T} 0.1
 
 ##EQ RUN 
 run ${N_EQ} 
-
+write_data output-1/NVT-EQ-STRUCTURE.${T}K-1 #data file
 ##PROD RUN (just to check the average pressure) 
 reset_timestep 0
-log output/prod.NVT.log.${T}  #save TD output to this file	
+log output-1/prod.NVT.log.${T}  #save TD output to this file	
 
 variable Pxx equal pxx*0.0001 #GPa  
 variable Pyy equal pyy*0.0001 #GPa  
@@ -174,19 +185,51 @@ variable Pxz equal pxz*0.0001 #GPa
 variable Pyz equal pyz*0.0001 #GPa  
 
 ##Nevery=2, Nrepeat=6, and Nfreq=100, then values on timesteps 90,92,94,96,98,100
-fix ave_press all ave/time 1 ${N_PROD} ${N_PROD} v_Pxx v_Pyy v_Pzz v_Pxy v_Pxz v_Pyz  file output/NVT-ave-pressure.dat 
+fix ave_press all ave/time 1 ${N_PROD_NVT} ${N_PROD_NVT} v_Pxx v_Pyy v_Pzz v_Pxy v_Pxz v_Pyz  file output-1/NVT-ave-pressure.dat 
 run ${N_PROD_NVT} 
 
-write_data output/EQ-NVT-STRUCTURE.${T} #data file
+write_data output-1/NVT-EQ-STRUCTURE.${T}K #data file
 
 clear 
 
-##--------------------------------------------------------------------
-##SIMULATION-4: RUN NVE AND APPLY MULLER-PLATHE TO GET THERMAL CONDUCTIVITY
-##--------------------------------------------------------------------
+###--------------------------------------------------------------------
+###SIMULATION-4: RUN NVE AND APPLY MULLER-PLATHE TO GET THERMAL CONDUCTIVITY
+###--------------------------------------------------------------------
 
-variable V equal vol
-variable N_MP equal 50000  #1000 steps=1ps   1,000,000 steps= 1 ns
+#units 		metal
+#dimension	3
+#boundary	p	p	p
+#atom_style	atomic
+
+###READ ATOMS
+#read_data output-1/NVT-EQ-STRUCTURE.${T}K
+#velocity all create ${T} 4928459 rot yes mom yes dist gaussian
+
+###load potential
+#pair_style sw
+#pair_coeff * * pot/Si.sw Si
+#mass * 28.0855
+
+
+##LET THE FIX EQUILIBIRATE 
+####fix ID group-ID thermal/conductivity N edim Nbin keyword value ...
+#fix 1 all thermal/conductivity 100 y 20 swap 1  
+#fix       2 all nve
+#compute   KE all ke/atom
+#variable  temp1 atom c_KE/(1.5*0.00008617)
+#compute   layers all chunk/atom bin/1d y lower 2.0 #units reduced
+#fix       3 all ave/chunk 1  1000 1000   layers v_temp1 file output-2/tmp.profile
+#thermo ${thermo_save}
+#variable A equal lx*lz
+#variable flux equal f_1/((time-0.000000001)*v_A) #ADD -0.000001 to avoid division by zero
+#thermo_style custom time temp vol v_A f_1 v_flux
+#run ${N_TC_EQ} 
+#write_data output-2/TC-EQ.${T}K #data file
+#clear 
+
+###--------------------------------------------------------------------
+###SIMULATION-4: RUN NVE AND APPLY MULLER-PLATHE TO GET THERMAL CONDUCTIVITY
+###--------------------------------------------------------------------
 
 units 		metal
 dimension	3
@@ -194,79 +237,78 @@ boundary	p	p	p
 atom_style	atomic
 
 ##READ ATOMS
-read_data output/EQ-NVT-STRUCTURE.100
+#read_data output-2/TC-EQ.${T}K 
+read_data output-1/NVT-EQ-STRUCTURE.${T}K
+velocity all create ${T} 4928459 rot yes mom yes dist gaussian
+
 
 ##load potential
 pair_style sw
 pair_coeff * * pot/Si.sw Si
 mass * 28.0855
 
-log snap/TC.log
-
-
-##fix ID group-ID thermal/conductivity N edim Nbin keyword value ...
-fix 1 all thermal/conductivity 100 y 100 swap 5  
-
-
+#LET THE FIX EQUILIBIRATE 
+###fix ID group-ID thermal/conductivity N edim Nbin keyword value ...
+fix 1 all thermal/conductivity 100 y 20 swap 1  
 fix       2 all nve
-compute   ke all ke/atom
-variable  temp1 atom c_ke/(1.5*0.00008617)
-compute   layers all chunk/atom bin/1d z lower 3.0 #units reduced
-fix       3 all ave/chunk 1 1000 1000 layers v_temp1 file tmp.profile
-
-thermo 50
-variable A equal lx*ly
-variable flux equal f_1/((time-0.0000001)*v_A) #ADD -0.000001 to avoid division by zero
+compute   KE all ke/atom
+variable  temp1 atom c_KE/(1.5*0.00008617)
+compute   layers all chunk/atom bin/1d y lower 2.0 #units reduced
+fix       3 all ave/chunk 1  ${N_TC}   ${N_TC}   layers v_temp1 file output-2/tmp2.profile
+thermo ${thermo_save}
+variable A equal lx*lz
+variable flux equal f_1/((time-0.000000000001)*v_A) #ADD -0.000001 to avoid division by zero
 thermo_style custom time temp vol v_A f_1 v_flux
 
-run ${N_steps} 
+
+run ${N_TC} 
+print ${flux} file flux.dat
+
+
+###write_data snap/data.${N_steps}
+
+
+####dump dump1 all custom ${snap_save} snap/snap.*.lammps id type x y z 
 
 
 
-#write_data snap/data.${N_steps}
+###-------------------SOME INFO ON VARIOUS FIXES---------------------------
 
-
-##dump dump1 all custom ${snap_save} snap/snap.*.lammps id type x y z 
-
-
-
-#-------------------SOME INFO ON VARIOUS FIXES---------------------------
-
-## CONSTRUCT A TEMPERATURE PROFILE 
-## THESE BINS ARE NOT RELATED TO thermal/conductivity Bins
-##  bin/1d args = dim origin delta
-##    dim = x or y or z
-##    origin = lower or center or upper or coordinate value (distance units)
-##    delta = thickness of spatial bins in dim (distance units)
+#### CONSTRUCT A TEMPERATURE PROFILE 
+#### THESE BINS ARE NOT RELATED TO thermal/conductivity Bins
+####  bin/1d args = dim origin delta
+####    dim = x or y or z
+####    origin = lower or center or upper or coordinate value (distance units)
+####    delta = thickness of spatial bins in dim (distance units)
 
 
 
-##fix ID group-ID ave/chunk Nevery Nrepeat Nfreq chunkID value1 value2 ... keyword args ...
-##ID, group-ID are documented in fix command
-##ave/chunk = style name of this fix command
-##Nevery = use input values every this many timesteps
-##Nrepeat = # of times to use input values for calculating averages
-##Nfreq = calculate averages every this many timesteps
-##chunkID = ID of compute chunk/atom command
-##one or more input values can be listed
-##value = vx, vy, vz, fx, fy, fz, density/mass, density/number, temp, c_ID, c_ID[I], f_ID, f_ID[I], v_name
+####fix ID group-ID ave/chunk Nevery Nrepeat Nfreq chunkID value1 value2 ... keyword args ...
+####ID, group-ID are documented in fix command
+####ave/chunk = style name of this fix command
+####Nevery = use input values every this many timesteps
+####Nrepeat = # of times to use input values for calculating averages
+####Nfreq = calculate averages every this many timesteps
+####chunkID = ID of compute chunk/atom command
+####one or more input values can be listed
+####value = vx, vy, vz, fx, fy, fz, density/mass, density/number, temp, c_ID, c_ID[I], f_ID, f_ID[I], v_name
 
-##For example, if Nevery=2, Nrepeat=6, and Nfreq=100, then values on timesteps 90,92,94,96,98,100 will be used to compute the final aver
-#age on timestep 100. Similarly for timesteps 190,192,194,196,198,200 on timestep 200, etc. If Nrepeat=1 and Nfreq = 100, then no time a
-#veraging is done; values are simply generated on timesteps 100,200,etc.
+####For example, if Nevery=2, Nrepeat=6, and Nfreq=100, then values on timesteps 90,92,94,96,98,100 will be used to compute the final aver
+###age on timestep 100. Similarly for timesteps 190,192,194,196,198,200 on timestep 200, etc. If Nrepeat=1 and Nfreq = 100, then no time a
+###veraging is done; values are simply generated on timesteps 100,200,etc.
 
 
 
 
 
-##fix ID group-ID thermal/conductivity N edim Nbin keyword value ...
-##ID, group-ID are documented in fix command
-##thermal/conductivity = style name of this fix command
-##N = perform kinetic energy exchange every N steps
-##edim = x or y or z = direction of kinetic energy transfer
-##Nbin = # of layers in edim direction (must be even number)
-##zero or more keyword/value pairs may be appended
-##keyword = swap
-##swap value = Nswap = number of swaps to perform every N steps
+####fix ID group-ID thermal/conductivity N edim Nbin keyword value ...
+####ID, group-ID are documented in fix command
+####thermal/conductivity = style name of this fix command
+####N = perform kinetic energy exchange every N steps
+####edim = x or y or z = direction of kinetic energy transfer
+####Nbin = # of layers in edim direction (must be even number)
+####zero or more keyword/value pairs may be appended
+####keyword = swap
+####swap value = Nswap = number of swaps to perform every N steps
 
 

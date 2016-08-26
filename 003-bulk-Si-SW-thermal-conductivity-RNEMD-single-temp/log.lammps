@@ -1,4 +1,4 @@
-LAMMPS (14 May 2016)
+LAMMPS (30 Jul 2016)
 ##NOTE: THIS IS NOT A SHELL SCRIP IT IS A LAMMPS INPUT FILE THE EXT .sh
 ##      IS ONLY USED SO THAT TEXT EDITORS TREAT IT LIKE A SHELL SCIPT
 ##      BECAUSE BOTH HAVE THE SAME COMMENT FORMALISM i.e. #
@@ -29,13 +29,15 @@ variable a_o equal 5   	#Guess for un-min lattice constant
 variable rep_x equal 5   	#repeat lattice this many times in given direction
 variable rep_y equal 10   	#repeat lattice this many times in given direction
 variable rep_z equal 5   	#repeat lattice this many times in given direction
-variable T equal 100  		#desired temperature of run
+variable T equal 500  		#desired temperature of run
 
 ##NPT PARAM
-variable N_EQ equal 500        #number of steps in equilibration period
-variable N_PROD equal 1000    #number of steps in production period
-variable N_PROD_NVT equal 1000    #number of steps in production period
-variable thermo_save equal 25   #TD sampling rate
+variable N_EQ equal 2500        #number of steps in equilibration period
+variable N_PROD equal 10000    #number of steps in production period
+variable N_PROD_NVT equal 5000    #number of steps in production period
+variable thermo_save equal 500   #TD sampling rate
+variable N_TC_EQ equal 10000
+variable N_TC equal 50000
 #variable DT equal 100	 	#temperature incriment in K
 #variable NUM_TEMPS equal 14	#temp mesh 1*DT,2*DT....NUM_TEMPS*DT
 
@@ -60,7 +62,7 @@ Lattice spacing in x,y,z = 5 5 5
 region box block 0 1 0 1 0 1 units lattice
 create_box   1 box
 Created orthogonal box = (0 0 0) to (5 5 5)
-  1 by 1 by 2 MPI processor grid
+  2 by 2 by 2 MPI processor grid
 create_atoms 1 box
 Created 8 atoms
 replicate ${rep_x} ${rep_y} ${rep_z}
@@ -68,7 +70,7 @@ replicate 5 ${rep_y} ${rep_z}
 replicate 5 10 ${rep_z}
 replicate 5 10 5
   orthogonal box = (0 0 0) to (25 50 25)
-  1 by 2 by 1 MPI processor grid
+  1 by 4 by 2 MPI processor grid
   2000 atoms
 
 ##SOME QUANTITIES OF INTEREST
@@ -97,7 +99,7 @@ Neighbor list info ...
   master list distance cutoff = 5.77118
   ghost atom cutoff = 5.77118
   binsize = 2.88559 -> bins = 9 18 9
-Memory usage per processor = 3.20793 Mbytes
+Memory usage per processor = 3.64922 Mbytes
 Step PotEng 2 Press Pxx Pyy Pzz a 
        0   -7842.7982   -3.9213991    336611.16    336611.16    336611.16    336611.16            5 
        1   -7862.3976   -3.9311988    332627.14    332627.14    332627.14    332627.14        5.005 
@@ -188,45 +190,45 @@ Step PotEng 2 Press Pxx Pyy Pzz a
       86   -8673.1965   -4.3365983    532.56802    532.56802    532.56802    532.56802         5.43 
       87      -8673.2      -4.3366   -1.1470401   -1.1470401   -1.1470401   -1.1470401    5.4309518 
       88      -8673.2      -4.3366 -0.0030476393 -0.0030476393 -0.0030476393 -0.0030476393    5.4309498 
-      89      -8673.2      -4.3366 -1.7053783e-06 -1.7053787e-06 -1.7053773e-06 -1.7053788e-06    5.4309498 
-Loop time of 3.40113 on 2 procs for 89 steps with 2000 atoms
+      89      -8673.2      -4.3366 -1.705399e-06 -1.7053997e-06 -1.7053977e-06 -1.7053997e-06    5.4309498 
+Loop time of 1.00377 on 8 procs for 89 steps with 2000 atoms
 
-85.2% CPU use with 2 MPI tasks x no OpenMP threads
+99.8% CPU use with 8 MPI tasks x no OpenMP threads
 
 Minimization stats:
   Stopping criterion = energy tolerance
   Energy initial, next-to-last, final = 
         -7842.79816544     -8673.19999983     -8673.19999983
-  Force two-norm initial, final = 19696.5 1.17732e-07
-  Force max component initial, final = 19696.5 1.17732e-07
-  Final line search alpha, max atom move = 1 1.17732e-07
+  Force two-norm initial, final = 19696.5 1.17733e-07
+  Force max component initial, final = 19696.5 1.17733e-07
+  Final line search alpha, max atom move = 1 1.17733e-07
   Iterations, force evaluations = 89 92
 
 MPI task timing breakdown:
 Section |  min time  |  avg time  |  max time  |%varavg| %total
 ---------------------------------------------------------------
-Pair    | 2.9174     | 3.0112     | 3.105      |   5.4 | 88.54
-Neigh   | 0.021859   | 0.022829   | 0.023798   |   0.6 |  0.67
-Comm    | 0.17102    | 0.2611     | 0.35118    |  17.6 |  7.68
-Output  | 0.0077906  | 0.029764   | 0.051737   |  12.7 |  0.88
+Pair    | 0.5583     | 0.7553     | 0.89644    |  13.3 | 75.25
+Neigh   | 0.0037713  | 0.0056967  | 0.0073893  |   1.6 |  0.57
+Comm    | 0.038739   | 0.20745    | 0.41054    |  25.9 | 20.67
+Output  | 0.0078259  | 0.0082115  | 0.0087698  |   0.3 |  0.82
 Modify  | 0          | 0          | 0          |   0.0 |  0.00
-Other   |            | 0.07624    |            |       |  2.24
+Other   |            | 0.02711    |            |       |  2.70
 
-Nlocal:    1000 ave 1050 max 950 min
-Histogram: 1 0 0 0 0 0 0 0 0 1
-Nghost:    2060 ave 2110 max 2010 min
-Histogram: 1 0 0 0 0 0 0 0 0 1
+Nlocal:    250 ave 305 max 205 min
+Histogram: 1 0 2 0 2 0 0 2 0 1
+Nghost:    1067 ave 1112 max 1012 min
+Histogram: 1 0 0 2 0 0 2 0 2 1
 Neighs:    0 ave 0 max 0 min
-Histogram: 2 0 0 0 0 0 0 0 0 0
-FullNghs:  34000 ave 35700 max 32300 min
-Histogram: 1 0 0 0 0 0 0 0 0 1
+Histogram: 8 0 0 0 0 0 0 0 0 0
+FullNghs:  8500 ave 10370 max 6970 min
+Histogram: 1 0 2 0 2 0 0 2 0 1
 
 Total # of neighbors = 68000
 Ave neighs/atom = 34
 Neighbor list builds = 5
 Dangerous builds = 0
 
-write_data output/lammps_data.0K.minimized #data file
+write_data output-1/lammps_data.0K.minimized #data file
 Neighbor list info ...
   1 neighbor list requests
   update every 1 steps, delay 10 steps, check yes
@@ -254,5 +256,5 @@ clear
 ##SIMULATION-2: Run NPT to determine thermal expansion factor for chosen temperature
 ##--------------------------------------------------------------------
 
-log output/eq.log.${T}  #save TD output to this file
-log output/eq.log.100  
+log output-1/eq.log.${T}  #save TD output to this file
+log output-1/eq.log.500  
