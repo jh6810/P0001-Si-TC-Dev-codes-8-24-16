@@ -1,0 +1,85 @@
+
+variable Pxx equal pxx*0.0001 #GPa
+variable Pyy equal pyy*0.0001 #GPa
+variable Pzz equal pzz*0.0001 #GPa
+variable Pxy equal pxy*0.0001 #GPa
+variable Pxz equal pxz*0.0001 #GPa
+variable Pyz equal pyz*0.0001 #GPa
+
+##Nevery=2, Nrepeat=6, and Nfreq=100, then values on timesteps 90,92,94,96,98,100
+fix ave_press all ave/time 1 ${N_PROD} ${N_PROD} v_Pxx v_Pyy v_Pzz v_Pxy v_Pxz v_Pyz  file output/NVT-ave-pressure.dat
+fix ave_press all ave/time 1 1000 ${N_PROD} v_Pxx v_Pyy v_Pzz v_Pxy v_Pxz v_Pyz  file output/NVT-ave-pressure.dat
+fix ave_press all ave/time 1 1000 1000 v_Pxx v_Pyy v_Pzz v_Pxy v_Pxz v_Pyz  file output/NVT-ave-pressure.dat
+run ${N_PROD_NVT}
+run 1000
+Memory usage per processor = 1.94075 Mbytes
+Time Temp Press 
+         2.5    96.814642    6.1335626 
+       2.625    100.61156    6.3151626 
+        2.75    101.01932    6.3038692 
+       2.875    99.316067      6.22516 
+           3    99.648431    6.2772163 
+       3.125    104.42205    6.5185656 
+        3.25    99.745071    6.3087732 
+       3.375    99.469009     6.247181 
+         3.5    100.78857    6.2872731 
+       3.625    100.15244    6.2996273 
+        3.75    98.474987    6.2356869 
+       3.875    101.09584    6.3296502 
+           4    102.11328    6.3457416 
+       4.125    96.458334    6.1612225 
+        4.25    99.471906    6.2728543 
+       4.375    100.59963    6.3518388 
+         4.5    99.719038    6.3633227 
+       4.625    100.19558    6.3509014 
+        4.75    99.931136    6.3643896 
+       4.875    99.288529    6.3612647 
+           5    101.63045     6.423551 
+       5.125    100.66758    6.3439485 
+        5.25    97.224132    6.1479676 
+       5.375    100.65512    6.2887406 
+         5.5    100.93232    6.3418618 
+       5.625    99.550069    6.3237363 
+        5.75    100.31566    6.3257013 
+       5.875    101.43596    6.3725908 
+           6    99.566196    6.3085031 
+       6.125    98.443208    6.1694265 
+        6.25    100.54845    6.3585321 
+       6.375    102.58536    6.4703964 
+         6.5    99.214345    6.3087518 
+       6.625    99.589722    6.3164989 
+        6.75     100.8108    6.3426028 
+       6.875    98.265302    6.2929545 
+           7    97.153063    6.2431036 
+       7.125    101.95765    6.4787315 
+        7.25    100.63264     6.391087 
+       7.375     98.62146    6.2507013 
+         7.5    100.71027    6.3226226 
+Loop time of 16.8185 on 2 procs for 1000 steps with 2000 atoms
+
+Performance: 25685.965 tau/day, 59.458 timesteps/s
+96.7% CPU use with 2 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 15.375     | 15.705     | 16.034     |   8.3 | 93.38
+Neigh   | 0.26008    | 0.26261    | 0.26514    |   0.5 |  1.56
+Comm    | 0.38533    | 0.72367    | 1.062      |  39.8 |  4.30
+Output  | 0.0096447  | 0.0097657  | 0.0098867  |   0.1 |  0.06
+Modify  | 0.095732   | 0.10154    | 0.10734    |   1.8 |  0.60
+Other   |            | 0.01619    |            |       |  0.10
+
+Nlocal:    1000 ave 1011 max 989 min
+Histogram: 1 0 0 0 0 0 0 0 0 1
+Nghost:    1173.5 ave 1208 max 1139 min
+Histogram: 1 0 0 0 0 0 0 0 0 1
+Neighs:    0 ave 0 max 0 min
+Histogram: 2 0 0 0 0 0 0 0 0 0
+FullNghs:  13540 ave 13542 max 13538 min
+Histogram: 1 0 0 0 0 0 0 0 0 1
+
+Total # of neighbors = 27080
+Ave neighs/atom = 13.54
+Neighbor list builds = 100
+Dangerous builds = 100
