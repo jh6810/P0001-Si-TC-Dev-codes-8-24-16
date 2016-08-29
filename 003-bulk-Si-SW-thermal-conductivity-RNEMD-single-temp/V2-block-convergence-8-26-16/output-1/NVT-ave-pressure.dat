@@ -1,0 +1,3 @@
+# Time-averaged data for fix ave_press
+# TimeStep v_Pxx v_Pyy v_Pzz v_Pxy v_Pxz v_Pyz
+10000 0.0012993 0.00245607 0.00100467 0.000385464 -0.000167724 7.70711e-05

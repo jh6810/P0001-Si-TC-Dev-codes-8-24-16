@@ -1,15 +1,15 @@
 
-#rm -rf output-1 
-#mkdir output-1 
+# rm -rf output-1 
+# mkdir output-1 
 
-#rm -rf output-2 
-#mkdir output-2 
+# rm -rf output-2 
+# mkdir output-2 
 
-#mpirun -np 8 ~/bin/lmp_mpi-30jul16-misc  -in lammps.input.sh  #path to your lammps exec
+# mpirun -np 16 ~/bin/lmp_mpi-30jul16-misc  -in lammps.input.sh  #path to your lammps exec
 
 rm y-vs-T.dat
 rm slope.dat
-awk '{if(NR>4) {if($2<26.5){print $2,$4}}}' "output-2/tmp2.profile" >> y-vs-T.dat
+awk '{if(NR>4) {if($2<107){print $2,$4}}}' "output-2/tmp2.profile" >> y-vs-T.dat
 gnuplot gnuplot.gnu
 dT_dx=$(awk '{print $0}' 'slope.dat') # K/ang
 J=$(awk '{print $0/2.0}' 'flux.dat')  # eV/(ps ang^2)

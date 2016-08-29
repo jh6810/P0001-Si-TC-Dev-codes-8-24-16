@@ -26,17 +26,17 @@
 ##0K PARAM 
 variable a_o equal 5   	#Guess for un-min lattice constant
 variable rep_x equal 5   	#repeat lattice this many times in given direction
-variable rep_y equal 10   	#repeat lattice this many times in given direction
+variable rep_y equal 100   	#repeat lattice this many times in given direction
 variable rep_z equal 5   	#repeat lattice this many times in given direction
 variable T equal 500  		#desired temperature of run
 
 ##NPT PARAM 
-variable N_EQ equal 2500        #number of steps in equilibration period 
-variable N_PROD equal 10000    #number of steps in production period 
-variable N_PROD_NVT equal 5000    #number of steps in production period 
+variable N_EQ equal 5000        #number of steps in equilibration period 
+variable N_PROD equal 25000    #number of steps in production period 
+variable N_PROD_NVT equal 10000    #number of steps in production period 
 variable thermo_save equal 500   #TD sampling rate 
 variable N_TC_EQ equal 10000
-variable N_TC equal 50000
+variable N_TC equal 250000
 #variable DT equal 100	 	#temperature incriment in K 	
 #variable NUM_TEMPS equal 14	#temp mesh 1*DT,2*DT....NUM_TEMPS*DT	
 
@@ -195,37 +195,37 @@ clear
 ###--------------------------------------------------------------------
 ###SIMULATION-4: RUN NVE AND APPLY MULLER-PLATHE TO GET THERMAL CONDUCTIVITY
 ###--------------------------------------------------------------------
+log output-2/log.TC.${T}  #save TD output to this file	
 
-#units 		metal
-#dimension	3
-#boundary	p	p	p
-#atom_style	atomic
+units 		metal
+dimension	3
+boundary	p	p	p
+atom_style	atomic
 
-###READ ATOMS
-#read_data output-1/NVT-EQ-STRUCTURE.${T}K
-#velocity all create ${T} 4928459 rot yes mom yes dist gaussian
+##READ ATOMS
+read_data output-1/NVT-EQ-STRUCTURE.${T}K
+velocity all create ${T} 4928459 rot yes mom yes dist gaussian
 
-###load potential
-#pair_style sw
-#pair_coeff * * pot/Si.sw Si
-#mass * 28.0855
+##load potential
+pair_style sw
+pair_coeff * * pot/Si.sw Si
+mass * 28.0855
 
-
-##LET THE FIX EQUILIBIRATE 
-####fix ID group-ID thermal/conductivity N edim Nbin keyword value ...
-#fix 1 all thermal/conductivity 100 y 20 swap 1  
-#fix       2 all nve
-#compute   KE all ke/atom
-#variable  temp1 atom c_KE/(1.5*0.00008617)
-#compute   layers all chunk/atom bin/1d y lower 2.0 #units reduced
-#fix       3 all ave/chunk 1  1000 1000   layers v_temp1 file output-2/tmp.profile
-#thermo ${thermo_save}
-#variable A equal lx*lz
-#variable flux equal f_1/((time-0.000000001)*v_A) #ADD -0.000001 to avoid division by zero
-#thermo_style custom time temp vol v_A f_1 v_flux
-#run ${N_TC_EQ} 
-#write_data output-2/TC-EQ.${T}K #data file
-#clear 
+#LET THE FIX EQUILIBIRATE 
+###fix ID group-ID thermal/conductivity N edim Nbin keyword value ...
+fix 1 all thermal/conductivity 100 y 20 swap 1  
+fix       2 all nve
+compute   KE all ke/atom
+variable  temp1 atom c_KE/(1.5*0.00008617)
+compute   layers all chunk/atom bin/1d y lower 2.0 #units reduced
+fix       3 all ave/chunk 1  1000 1000   layers v_temp1 file output-2/tmp.profile
+thermo ${thermo_save}
+variable A equal lx*lz
+variable flux equal f_1/((time-0.000000001)*v_A) #ADD -0.000001 to avoid division by zero
+thermo_style custom time temp vol v_A f_1 v_flux
+run ${N_TC_EQ} 
+write_data output-2/TC-EQ.${T}K #data file
+clear 
 
 ###--------------------------------------------------------------------
 ###SIMULATION-4: RUN NVE AND APPLY MULLER-PLATHE TO GET THERMAL CONDUCTIVITY
@@ -237,10 +237,9 @@ boundary	p	p	p
 atom_style	atomic
 
 ##READ ATOMS
-#read_data output-2/TC-EQ.${T}K 
-read_data output-1/NVT-EQ-STRUCTURE.${T}K
-velocity all create ${T} 4928459 rot yes mom yes dist gaussian
-
+read_data output-2/TC-EQ.${T}K 
+#read_data output-1/NVT-EQ-STRUCTURE.${T}K
+#velocity all create ${T} 4928459 rot yes mom yes dist gaussian
 
 ##load potential
 pair_style sw
@@ -259,7 +258,6 @@ thermo ${thermo_save}
 variable A equal lx*lz
 variable flux equal f_1/((time-0.000000000001)*v_A) #ADD -0.000001 to avoid division by zero
 thermo_style custom time temp vol v_A f_1 v_flux
-
 
 run ${N_TC} 
 print ${flux} file flux.dat

@@ -1,0 +1,95 @@
+
+units 		metal
+dimension	3
+boundary	p	p	p
+atom_style	atomic
+
+#load structure
+read_data output-1/lammps_data.0K.minimized
+  orthogonal box = (-1.07737 -21.5475 -1.07737) to (26.0774 521.547 26.0774)
+  1 by 16 by 1 MPI processor grid
+  reading atoms ...
+  20000 atoms
+  reading velocities ...
+  20000 velocities
+
+velocity all create ${T} 4928459 rot yes mom yes dist gaussian
+velocity all create 500 4928459 rot yes mom yes dist gaussian
+
+#SCALE FACTORS
+variable sf equal (lx/${lxo}+ly/${lyo}+lz/${lzo})/3.0
+variable sf equal (lx/27.1547488920984+ly/${lyo}+lz/${lzo})/3.0
+variable sf equal (lx/27.1547488920984+ly/543.094977841967+lz/${lzo})/3.0
+variable sf equal (lx/27.1547488920984+ly/543.094977841967+lz/27.1547488920984)/3.0
+
+#load potential
+pair_style sw
+pair_coeff * * pot/Si.sw Si
+Reading potential file pot/Si.sw with DATE: 2007-06-11
+mass * 28.0855
+
+
+reset_timestep 0
+thermo ${thermo_save}
+thermo 500
+thermo_style custom time temp press v_sf
+fix 1 all npt temp ${T} ${T} 0.1 aniso 0.0 0.0 1.0
+fix 1 all npt temp 500 ${T} 0.1 aniso 0.0 0.0 1.0
+fix 1 all npt temp 500 500 0.1 aniso 0.0 0.0 1.0
+
+#EQ RUN
+run ${N_EQ}
+run 5000
+Neighbor list info ...
+  1 neighbor list requests
+  update every 1 steps, delay 10 steps, check yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 5.77118
+  ghost atom cutoff = 5.77118
+  binsize = 2.88559 -> bins = 10 189 10
+Memory usage per processor = 2.4543 Mbytes
+Time Temp Press sf 
+           0          500    3447.4236            1 
+         0.5    386.64485   -604.85399    1.0017044 
+           1    516.75665   -66.379814    1.0019781 
+         1.5    478.45877    269.15449    1.0017493 
+           2    501.02356   -404.07498    1.0020596 
+         2.5    493.92954   -111.25375    1.0019761 
+           3    501.84807    59.376169    1.0018917 
+         3.5    494.17891   -386.08715     1.002058 
+           4    496.31957    131.39238    1.0018814 
+         4.5    498.27791    44.498693    1.0019298 
+           5    502.50524   -218.34389    1.0020369 
+Loop time of 48.9573 on 16 procs for 5000 steps with 20000 atoms
+
+Performance: 8.824 ns/day, 2.720 hours/ns, 102.130 timesteps/s
+99.7% CPU use with 16 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 43.42      | 44.05      | 45.339     |   7.3 | 89.98
+Neigh   | 0.012667   | 0.012879   | 0.013141   |   0.1 |  0.03
+Comm    | 0.76717    | 1.2987     | 1.9303     |  22.5 |  2.65
+Output  | 0.00056243 | 0.0006585  | 0.0020099  |   1.4 |  0.00
+Modify  | 2.6559     | 3.4073     | 3.8779     |  20.2 |  6.96
+Other   |            | 0.1882     |            |       |  0.38
+
+Nlocal:    1250 ave 1266 max 1236 min
+Histogram: 1 1 3 2 1 3 2 1 1 1
+Nghost:    2320.81 ave 2338 max 2299 min
+Histogram: 1 1 2 2 0 3 2 1 1 3
+Neighs:    0 ave 0 max 0 min
+Histogram: 16 0 0 0 0 0 0 0 0 0
+FullNghs:  43439.5 ave 44135 max 42924 min
+Histogram: 2 3 0 3 3 1 1 1 1 1
+
+Total # of neighbors = 695032
+Ave neighs/atom = 34.7516
+Neighbor list builds = 3
+Dangerous builds = 0
+
+#PROD RUN
+reset_timestep 0
+log output-1/prod.log.${T}  #save TD output to this file
+log output-1/prod.log.500  

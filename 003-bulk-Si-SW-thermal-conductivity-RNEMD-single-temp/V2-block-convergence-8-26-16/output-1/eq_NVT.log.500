@@ -1,0 +1,95 @@
+
+##load structure
+read_data output-1/lammps_data.0K.minimized
+  orthogonal box = (-1.07737 -21.5475 -1.07737) to (26.0774 521.547 26.0774)
+  1 by 16 by 1 MPI processor grid
+  reading atoms ...
+  20000 atoms
+  reading velocities ...
+  20000 velocities
+
+##scale block and randomize velocities
+print ${ave_SF}
+print 1.0019472478967
+1.0019472478967
+
+change_box all x scale ${ave_SF} y scale ${ave_SF} z scale ${ave_SF} remap
+change_box all x scale 1.0019472478967 y scale ${ave_SF} z scale ${ave_SF} remap
+change_box all x scale 1.0019472478967 y scale 1.0019472478967 z scale ${ave_SF} remap
+change_box all x scale 1.0019472478967 y scale 1.0019472478967 z scale 1.0019472478967 remap
+  orthogonal box = (-1.10381 -21.5475 -1.07737) to (26.1038 521.547 26.0774)
+  orthogonal box = (-1.10381 -22.0763 -1.07737) to (26.1038 522.076 26.0774)
+  orthogonal box = (-1.10381 -22.0763 -1.10381) to (26.1038 522.076 26.1038)
+velocity all create ${T} 4928459 rot yes mom yes dist gaussian
+velocity all create 500 4928459 rot yes mom yes dist gaussian
+
+#load potential
+pair_style sw
+pair_coeff * * pot/Si.sw Si
+Reading potential file pot/Si.sw with DATE: 2007-06-11
+mass * 28.0855
+
+thermo ${thermo_save}
+thermo 500
+thermo_style custom time temp press
+fix 1 all nvt temp ${T} ${T} 0.1
+fix 1 all nvt temp 500 ${T} 0.1
+fix 1 all nvt temp 500 500 0.1
+
+##EQ RUN
+run ${N_EQ}
+run 5000
+Neighbor list info ...
+  1 neighbor list requests
+  update every 1 steps, delay 10 steps, check yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 5.77118
+  ghost atom cutoff = 5.77118
+  binsize = 2.88559 -> bins = 10 189 10
+Memory usage per processor = 2.4543 Mbytes
+Time Temp Press 
+           0          500   -2441.4267 
+         0.5    388.73883   -1320.7783 
+           1    514.18566    50.600149 
+         1.5    479.23968   -313.68058 
+           2    502.42651   -68.049229 
+         2.5    493.02379   -15.855796 
+           3    501.68053   -95.827206 
+         3.5    494.36445   -38.612897 
+           4    495.92618   -56.107403 
+         4.5    498.04601   -1.7587554 
+           5    502.58587    57.952453 
+Loop time of 49.2288 on 16 procs for 5000 steps with 20000 atoms
+
+Performance: 8.775 ns/day, 2.735 hours/ns, 101.567 timesteps/s
+99.5% CPU use with 16 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 40.815     | 43.226     | 44.936     |  17.0 | 87.81
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 0.45231    | 1.8122     | 4.2313     |  79.8 |  3.68
+Output  | 0.0003705  | 0.00045638 | 0.0015845  |   1.4 |  0.00
+Modify  | 2.7347     | 3.744      | 5.2288     |  33.3 |  7.61
+Other   |            | 0.4459     |            |       |  0.91
+
+Nlocal:    1250 ave 1300 max 1200 min
+Histogram: 2 0 0 0 0 12 0 0 0 2
+Nghost:    2328.5 ave 2379 max 2278 min
+Histogram: 2 0 0 0 6 6 0 0 0 2
+Neighs:    0 ave 0 max 0 min
+Histogram: 16 0 0 0 0 0 0 0 0 0
+FullNghs:  42500 ave 44200 max 40800 min
+Histogram: 2 0 0 0 0 12 0 0 0 2
+
+Total # of neighbors = 680000
+Ave neighs/atom = 34
+Neighbor list builds = 0
+Dangerous builds = 0
+write_data output-1/NVT-EQ-STRUCTURE.${T}K-1 #data file
+write_data output-1/NVT-EQ-STRUCTURE.500K-1 
+##PROD RUN (just to check the average pressure)
+reset_timestep 0
+log output-1/prod.NVT.log.${T}  #save TD output to this file
+log output-1/prod.NVT.log.500  
