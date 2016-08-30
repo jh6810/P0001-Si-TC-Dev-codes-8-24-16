@@ -1,0 +1,189 @@
+
+units 		metal
+dimension	3
+boundary	p	p	p
+atom_style	atomic
+
+##READ ATOMS
+read_data ${LOC1}/NVT-EQ-STRUCTURE-5-25
+read_data ../output/output-1//NVT-EQ-STRUCTURE-5-25
+  orthogonal box = (-1.10372 -5.51858 -1.10372) to (26.1037 130.519 26.1037)
+  1 by 8 by 2 MPI processor grid
+  reading atoms ...
+  5000 atoms
+  reading velocities ...
+  5000 velocities
+velocity all create ${T} 4928459 rot yes mom yes dist gaussian
+velocity all create 500 4928459 rot yes mom yes dist gaussian
+
+##load potential
+pair_style sw
+pair_coeff * * pot/Si.sw Si
+Reading potential file pot/Si.sw with DATE: 2007-06-11
+mass * 28.0855
+
+reset_timestep 0
+
+#LET THE FIX EQUILIBIRATE
+###fix ID group-ID thermal/conductivity N edim Nbin keyword value ...
+fix 1 all thermal/conductivity ${swap_every} y ${TC_num_layers} swap ${num_swap}
+fix 1 all thermal/conductivity 500 y ${TC_num_layers} swap ${num_swap}
+fix 1 all thermal/conductivity 500 y 90 swap ${num_swap}
+fix 1 all thermal/conductivity 500 y 90 swap 2
+
+fix       2 all nve
+
+thermo ${thermo_save}
+thermo 500
+thermo_style custom time temp f_1 #v_flux
+run ${N_TC_EQ}
+run 50000
+Neighbor list info ...
+  1 neighbor list requests
+  update every 1 steps, delay 10 steps, check yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 5.77118
+  ghost atom cutoff = 5.77118
+  binsize = 2.88559 -> bins = 10 48 10
+Memory usage per processor = 2.40289 Mbytes
+Time Temp 1 
+           0          500            0 
+         0.5    503.65064    0.4401222 
+           1     499.2079   0.84230255 
+         1.5    488.21084    1.2709462 
+           2    483.67623    1.7009299 
+         2.5    502.67026    2.0537568 
+           3    485.76879    2.5054154 
+         3.5    503.49866    3.3117947 
+           4    499.15631    3.7652846 
+         4.5    498.66977     4.146276 
+           5    488.91809    4.5665478 
+         5.5    501.29619     4.893665 
+           6    501.46907    5.3273821 
+         6.5     499.4506    5.6858486 
+           7     493.4854    6.3078773 
+         7.5    503.38254    6.7291917 
+           8    505.40434    7.0770881 
+         8.5    499.53005    7.4429401 
+           9    509.70009     7.971017 
+         9.5    532.53123    8.4252783 
+          10    498.28213    8.7949507 
+        10.5    494.53879    9.3116655 
+          11    502.04685     9.659726 
+        11.5    505.12397    10.132122 
+          12    493.30931    10.621504 
+        12.5    493.61644    10.966627 
+          13    502.96512    11.565813 
+        13.5    500.28915    12.007269 
+          14    502.23415    12.473486 
+        14.5    502.99761    12.929593 
+          15    487.29281    13.486414 
+        15.5    502.66098    13.830032 
+          16    492.10695    14.363082 
+        16.5    507.17477    14.777094 
+          17    503.84158     15.34523 
+        17.5    497.31065    15.718696 
+          18      494.926    16.228353 
+        18.5    493.43346    16.672699 
+          19    507.84406    16.945841 
+        19.5    486.97847    17.350924 
+          20    494.25914    17.866469 
+        20.5    493.77861    18.414684 
+          21    497.74948    18.948016 
+        21.5    504.09386    19.458966 
+          22    493.38635     20.00983 
+        22.5    502.15482    20.461201 
+          23    489.73981    20.866679 
+        23.5    493.97179    21.276681 
+          24     496.8511     21.72023 
+        24.5    501.32873    22.315046 
+          25    491.39066    22.809505 
+        25.5    496.93569    23.576129 
+          26    495.64577    24.005348 
+        26.5    499.52179     24.47277 
+          27    499.81957    25.006231 
+        27.5    508.36988    25.386653 
+          28    508.68726    25.757455 
+        28.5    508.48702    26.227415 
+          29    505.66955    26.587442 
+        29.5    493.23142    27.102115 
+          30    493.55932    27.522027 
+        30.5    503.08517     28.04395 
+          31    504.91609    28.575326 
+        31.5    499.78924    29.216458 
+          32    496.99716    29.517254 
+        32.5     496.5469    30.068071 
+          33    499.23411    30.368317 
+        33.5    491.35113    30.712765 
+          34     496.8932    31.144432 
+        34.5    502.21333     31.68089 
+          35    500.15431    32.062886 
+        35.5       497.92    32.656759 
+          36      495.061     33.06859 
+        36.5    507.79307    33.468488 
+          37    492.86777    33.890294 
+        37.5    497.21037    34.239631 
+          38    495.61401    34.773802 
+        38.5    508.52724    35.357682 
+          39    505.43341    35.796384 
+        39.5    494.66857    36.120042 
+          40    501.24638    36.514286 
+        40.5    496.30586    36.835075 
+          41    491.32817    37.275927 
+        41.5    499.42749    37.762334 
+          42    496.27708    38.086443 
+        42.5    498.24997    38.515687 
+          43    504.41346    38.895463 
+        43.5    500.74508     39.28131 
+          44    494.59782    39.756375 
+        44.5    497.08655     40.20106 
+          45    505.33521    40.701348 
+        45.5    502.25729    41.214041 
+          46    487.22719    41.507929 
+        46.5    507.71203    41.880161 
+          47     500.4903    42.297116 
+        47.5    490.62662    42.781836 
+          48    494.35319     43.18971 
+        48.5    490.45073    43.642943 
+          49    501.82365    44.066444 
+        49.5    499.13884    44.416507 
+          50    500.60443     44.99744 
+Loop time of 129.278 on 16 procs for 50000 steps with 5000 atoms
+
+Performance: 33.416 ns/day, 0.718 hours/ns, 386.764 timesteps/s
+99.5% CPU use with 16 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 109.87     | 112.56     | 116.38     |  21.3 | 87.07
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 6.1829     | 9.7136     | 13.791     |  67.9 |  7.51
+Output  | 0.0021875  | 0.0030937  | 0.013924   |   5.0 |  0.00
+Modify  | 0.45172    | 0.49583    | 0.54342    |   3.7 |  0.38
+Other   |            | 6.508      |            |       |  5.03
+
+Nlocal:    312.5 ave 326 max 306 min
+Histogram: 5 2 1 1 3 1 0 1 1 1
+Nghost:    1136.38 ave 1149 max 1120 min
+Histogram: 1 0 1 4 1 3 0 1 2 3
+Neighs:    0 ave 0 max 0 min
+Histogram: 16 0 0 0 0 0 0 0 0 0
+FullNghs:  10864.9 ave 11328 max 10601 min
+Histogram: 3 3 2 1 3 0 1 1 1 1
+
+Total # of neighbors = 173838
+Ave neighs/atom = 34.7676
+Neighbor list builds = 0
+Dangerous builds = 0
+
+write_data ${LOC2}/TC-EQ-STRUCTURE-5-25 #data file
+write_data ../output/output-2//TC-EQ-STRUCTURE-5-25 
+clear
+
+####--------------------------------------------------------------------
+####SIMULATION-4: RUN NVE AND APPLY MULLER-PLATHE TO GET THERMAL CONDUCTIVITY
+####--------------------------------------------------------------------
+
+log ${LOC2}/log-TC-prod-5-25  #save TD output to this file
+log ../output/output-2//log-TC-prod-5-25  

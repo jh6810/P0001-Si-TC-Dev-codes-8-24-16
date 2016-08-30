@@ -1,0 +1,106 @@
+
+units 		metal
+dimension	3
+boundary	p	p	p
+atom_style	atomic
+
+###READ ATOMS
+read_data ${LOC2}/TC-EQ-STRUCTURE-15-25
+read_data ../output/output-2//TC-EQ-STRUCTURE-15-25
+  orthogonal box = (-1.10372 -5.51858 -1.10372) to (26.1037 130.519 26.1037)
+  1 by 8 by 2 MPI processor grid
+  reading atoms ...
+  5000 atoms
+  reading velocities ...
+  5000 velocities
+
+###load potential
+pair_style sw
+pair_coeff * * pot/Si.sw Si
+Reading potential file pot/Si.sw with DATE: 2007-06-11
+mass * 28.0855
+
+
+####fix ID group-ID thermal/conductivity N edim Nbin keyword value ...
+reset_timestep 0
+
+fix 1 all thermal/conductivity ${swap_every} y ${TC_num_layers} swap ${num_swap}
+fix 1 all thermal/conductivity 4500 y ${TC_num_layers} swap ${num_swap}
+fix 1 all thermal/conductivity 4500 y 90 swap ${num_swap}
+fix 1 all thermal/conductivity 4500 y 90 swap 2
+
+fix       2 all nve
+
+#TEMPERATURE PROFILE
+compute   KE all ke/atom
+variable  temp1 atom c_KE/(1.5*0.00008617)
+compute   layers all chunk/atom bin/1d y lower 2.0 #units reduced
+fix 3 all ave/chunk 1 ${N_TC} ${N_TC} layers v_temp1 file ${LOC2}/TC-TEMP-PROFILE-15-25
+fix 3 all ave/chunk 1 200000 ${N_TC} layers v_temp1 file ${LOC2}/TC-TEMP-PROFILE-15-25
+fix 3 all ave/chunk 1 200000 200000 layers v_temp1 file ${LOC2}/TC-TEMP-PROFILE-15-25
+fix 3 all ave/chunk 1 200000 200000 layers v_temp1 file ../output/output-2//TC-TEMP-PROFILE-15-25
+
+thermo ${thermo_save}
+thermo 4500
+
+variable A equal lx*lz
+variable flux equal f_1/((time-0.000000000001)*v_A) #ADD -0.000001 to avoid division by zero
+thermo_style custom time temp v_A f_1 v_flux
+
+run ${N_TC}
+run 200000
+Neighbor list info ...
+  1 neighbor list requests
+  update every 1 steps, delay 10 steps, check yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 5.77118
+  ghost atom cutoff = 5.77118
+  binsize = 2.88559 -> bins = 10 48 10
+Memory usage per processor = 2.65112 Mbytes
+Time Temp A 1 flux 
+           0    490.90011    740.24445            0           -0 
+         4.5    499.99775    740.24445   0.33651262 0.00010102147 
+           9    499.70752    740.24445   0.69714916 0.00010464248 
+        13.5    508.96648    740.24445    1.2267253 0.00012275478 
+          18    503.58733    740.24445    1.6812846 0.00012618088 
+        22.5     491.7262    740.24445    2.1395321 0.00012845799 
+          27    498.24649    740.24445    2.5804495 0.00012910898 
+        31.5    493.85804    740.24445    3.0529216 0.00013092722 
+          36    499.80883    740.24445    3.3892157 0.0001271808 
+        40.5    503.72411    740.24445     3.775372 0.00012593011 
+          45    498.18183    740.24445    4.1635781 0.00012499109 
+        49.5    506.93423    740.24445    4.5474017 0.00012410319 
+          54    496.60765    740.24445    4.9344767 0.00012344462 
+        58.5    496.43132    740.24445    5.4011557 0.00012472562 
+          63    496.23717    740.24445    5.9878338 0.00012839675 
+        67.5    498.71964    740.24445    6.5037247 0.0001301617 
+          72    497.05586    740.24445    6.9298642 0.00013002207 
+        76.5    498.93479    740.24445    7.3389077 0.00012959697 
+          81    508.12557    740.24445    7.8098988 0.00013025225 
+        85.5    499.70909    740.24445    8.2923209 0.00013101916 
+          90    501.71639    740.24445    8.7141502 0.00013079989 
+        94.5    494.93387    740.24445    9.1211338 0.00013038927 
+          99    503.06326    740.24445    9.5547139 0.00013037891 
+       103.5    494.03226    740.24445    9.9012626 0.00012923349 
+         108    497.93299    740.24445    10.407354 0.00013017915 
+       112.5    499.92049    740.24445    10.926914 0.00013121088 
+         117    497.22427    740.24445    11.278822 0.0001302275 
+       121.5    495.47332    740.24445    11.679914 0.00012986383 
+         126    491.69796    740.24445    12.069498 0.00012940274 
+       130.5    499.76231    740.24445    12.541106 0.00012982256 
+         135    499.53446    740.24445    12.944854 0.00012953533 
+       139.5    508.31723    740.24445    13.334342 0.00012912853 
+         144    510.26051    740.24445    13.732446 0.00012882799 
+       148.5    498.53768    740.24445    14.170301 0.00012890729 
+         153    504.73572    740.24445    14.527108 0.0001282663 
+       157.5    492.83785    740.24445    14.893287 0.00012774234 
+         162    494.70781    740.24445    15.234699 0.00012704094 
+       166.5    504.68856    740.24445    15.563289 0.00012627343 
+         171    501.53583    740.24445    15.915907 0.00012573614 
+       175.5    494.84379    740.24445    16.404789 0.00012627529 
+         180    494.89104    740.24445    16.935178 0.00012709899 
+       184.5    502.52023    740.24445    17.253862 0.00012633241 
+         189    502.08992    740.24445    17.875637 0.00012776873 
+       193.5    500.79554    740.24445    18.451412 0.00012881708 
+         198    496.76225    740.24445    18.827981 0.00012845866 
+ERROR: Fix in variable not computed at compatible time (../variable.cpp:1581)

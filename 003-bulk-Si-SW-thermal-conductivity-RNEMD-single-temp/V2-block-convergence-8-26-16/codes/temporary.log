@@ -1,0 +1,242 @@
+
+units 		metal
+dimension	3
+boundary	p	p	p
+atom_style	atomic
+
+##load structure
+read_data lammps_data.0K.minimized
+  orthogonal box = (-1.07737 -5.38687 -1.07737) to (26.0774 130.387 26.0774)
+  2 by 8 by 1 MPI processor grid
+  reading atoms ...
+  5000 atoms
+  reading velocities ...
+  5000 velocities
+
+##scale block and randomize velocities
+print ${ave_SF}
+print 1.00194017060324
+1.00194017060324
+
+change_box all x scale ${ave_SF} y scale ${ave_SF} z scale ${ave_SF} remap
+change_box all x scale 1.00194017060324 y scale ${ave_SF} z scale ${ave_SF} remap
+change_box all x scale 1.00194017060324 y scale 1.00194017060324 z scale ${ave_SF} remap
+change_box all x scale 1.00194017060324 y scale 1.00194017060324 z scale 1.00194017060324 remap
+  orthogonal box = (-1.10372 -5.38687 -1.07737) to (26.1037 130.387 26.0774)
+  orthogonal box = (-1.10372 -5.51858 -1.07737) to (26.1037 130.519 26.0774)
+  orthogonal box = (-1.10372 -5.51858 -1.10372) to (26.1037 130.519 26.1037)
+velocity all create ${T} 4928459 rot yes mom yes dist gaussian
+velocity all create 500 4928459 rot yes mom yes dist gaussian
+
+#load potential
+pair_style sw
+pair_coeff * * pot/Si.sw Si
+Reading potential file pot/Si.sw with DATE: 2007-06-11
+mass * 28.0855
+
+thermo ${thermo_save}
+thermo 100
+thermo_style custom time temp press
+fix 1 all nvt temp ${T} ${T} 0.1
+fix 1 all nvt temp 500 ${T} 0.1
+fix 1 all nvt temp 500 500 0.1
+
+##EQ RUN
+run ${N_EQ}
+run 7500
+Neighbor list info ...
+  1 neighbor list requests
+  update every 1 steps, delay 10 steps, check yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 5.77118
+  ghost atom cutoff = 5.77118
+  binsize = 2.88559 -> bins = 10 48 10
+Memory usage per processor = 2.50516 Mbytes
+Time Temp Press 
+           0          500   -2420.7399 
+         0.1    271.76375   -2426.4546 
+         0.2     238.3991   -2090.3466 
+         0.3    320.92291   -1837.1499 
+         0.4    396.57181   -1290.6797 
+         0.5    433.48464   -846.92682 
+         0.6    462.18684   -564.94527 
+         0.7    492.89877   -159.53418 
+         0.8    499.39053     217.7732 
+         0.9    523.39009    676.59841 
+           1    525.87045    216.08784 
+         1.1    500.23879   -67.728468 
+         1.2    491.10383   -35.709264 
+         1.3    500.13864    78.992584 
+         1.4    501.96998    25.392468 
+         1.5    498.78932   -104.48396 
+         1.6    510.40616    127.83601 
+         1.7     488.7918    9.6071016 
+         1.8    482.79302   -79.486263 
+         1.9    487.92575   -225.89825 
+           2    498.50695   -55.272513 
+         2.1    488.16639    65.235978 
+         2.2    503.20221     101.6252 
+         2.3    511.50006    3.3451927 
+         2.4    465.55873   -293.27011 
+         2.5    460.22887   -283.24276 
+         2.6    484.81837   -207.48626 
+         2.7    506.62842   -191.32395 
+         2.8    495.19423    24.374802 
+         2.9    487.52493   -140.23952 
+           3    488.72896    -234.9569 
+         3.1    485.95526   -154.13692 
+         3.2    481.06127   -153.11452 
+         3.3    487.18886   -104.77403 
+         3.4    512.13518    52.843261 
+         3.5    507.20159    94.573471 
+         3.6    478.09894   -207.23022 
+         3.7    491.26377   -112.68202 
+         3.8    484.63398   -34.699414 
+         3.9    486.82355   -102.92601 
+           4    496.15434    9.4936953 
+         4.1    513.77642    28.463085 
+         4.2    508.15121    62.392743 
+         4.3    506.17905    67.354655 
+         4.4    504.60161    55.919105 
+         4.5    501.30592   -27.627332 
+         4.6    512.46371    11.491116 
+         4.7    516.47211    138.20089 
+         4.8    508.86909    75.205888 
+         4.9    496.04741   -93.337889 
+           5    492.82108   -94.745382 
+         5.1    490.87483    -96.99182 
+         5.2    496.02198    81.317289 
+         5.3    497.89717    16.261875 
+         5.4    506.71783    60.851922 
+         5.5    515.29875    115.91475 
+         5.6    494.21962   -42.057121 
+         5.7    489.40139    -101.4538 
+         5.8    498.49667   -36.349706 
+         5.9    498.28261   -69.336638 
+           6    514.88478    118.82813 
+         6.1    495.36751   -7.5314256 
+         6.2     490.8916   -69.713241 
+         6.3     502.5368   -57.143185 
+         6.4    498.23173   -23.785719 
+         6.5    498.81893    56.806534 
+         6.6    507.10901    47.359025 
+         6.7    510.74204    122.75296 
+         6.8    516.73236    204.90157 
+         6.9    501.27729    15.181576 
+           7    491.98971    -127.0874 
+         7.1    489.91476   -217.93661 
+         7.2    499.65199    11.808057 
+         7.3    506.97278    46.970464 
+         7.4    508.80005    137.01051 
+         7.5    504.11878   -8.1293152 
+Loop time of 25.3122 on 16 procs for 7500 steps with 5000 atoms
+
+Performance: 25.600 ns/day, 0.937 hours/ns, 296.300 timesteps/s
+97.8% CPU use with 16 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 13.958     | 16.445     | 19.393     |  45.5 | 64.97
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 0.85493    | 4.3997     | 7.5374     |  92.7 | 17.38
+Output  | 0.0023382  | 0.0076623  | 0.016254   |   3.3 |  0.03
+Modify  | 2.4694     | 3.6585     | 4.5793     |  34.2 | 14.45
+Other   |            | 0.8013     |            |       |  3.17
+
+Nlocal:    312.5 ave 360 max 270 min
+Histogram: 4 0 4 0 0 0 4 0 0 4
+Nghost:    1136.5 ave 1185 max 1088 min
+Histogram: 4 0 2 2 0 0 2 2 2 2
+Neighs:    0 ave 0 max 0 min
+Histogram: 16 0 0 0 0 0 0 0 0 0
+FullNghs:  10625 ave 12240 max 9180 min
+Histogram: 4 0 4 0 0 0 4 0 0 4
+
+Total # of neighbors = 170000
+Ave neighs/atom = 34
+Neighbor list builds = 0
+Dangerous builds = 0
+#log output-2/log.TC.${T}  #save TD output to this file
+
+##PROD RUN (just to check the average pressure)
+reset_timestep 0
+
+variable Pxx equal pxx*0.0001 #GPa
+variable Pyy equal pyy*0.0001 #GPa
+variable Pzz equal pzz*0.0001 #GPa
+variable Pxy equal pxy*0.0001 #GPa
+variable Pxz equal pxz*0.0001 #GPa
+variable Pyz equal pyz*0.0001 #GPa
+
+##Nevery=2, Nrepeat=6, and Nfreq=100, then values on timesteps 90,92,94,96,98,100
+fix ave_press all ave/time 1 ${N_PROD_NVT} ${N_PROD_NVT} v_Pxx v_Pyy v_Pzz v_Pxy v_Pxz v_Pyz  file  ${LOC1}/NVT-ave-pressure-5-5.dat
+fix ave_press all ave/time 1 2000 ${N_PROD_NVT} v_Pxx v_Pyy v_Pzz v_Pxy v_Pxz v_Pyz  file  ${LOC1}/NVT-ave-pressure-5-5.dat
+fix ave_press all ave/time 1 2000 2000 v_Pxx v_Pyy v_Pzz v_Pxy v_Pxz v_Pyz  file  ${LOC1}/NVT-ave-pressure-5-5.dat
+fix ave_press all ave/time 1 2000 2000 v_Pxx v_Pyy v_Pzz v_Pxy v_Pxz v_Pyz  file  ../output/output-1//NVT-ave-pressure-5-5.dat
+
+run ${N_PROD_NVT}
+run 2000
+Memory usage per processor = 2.50516 Mbytes
+Time Temp Press 
+         7.5    504.11878   -8.1293152 
+         7.6    493.35769    19.398892 
+         7.7    502.26297    124.29941 
+         7.8    506.94656    131.65174 
+         7.9    500.51315    97.948308 
+           8    505.28805    42.088672 
+         8.1    501.80294    2.4644765 
+         8.2    491.27902   -110.54505 
+         8.3    505.29051   -7.2947902 
+         8.4    495.43261    63.454781 
+         8.5    501.01683    94.694099 
+         8.6    517.64084    89.531828 
+         8.7    487.36636    47.974126 
+         8.8    494.91308    21.704311 
+         8.9    497.79966   -24.124307 
+           9    503.45418   -23.900799 
+         9.1    491.60386   -108.39024 
+         9.2    487.49706   -93.524083 
+         9.3    500.64052    8.2151836 
+         9.4    505.19744     37.59058 
+         9.5    505.62846    15.233309 
+Loop time of 6.12512 on 16 procs for 2000 steps with 5000 atoms
+
+Performance: 28.212 ns/day, 0.851 hours/ns, 326.524 timesteps/s
+97.9% CPU use with 16 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 4.3529     | 4.4964     | 4.7779     |   5.1 | 73.41
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 0.27868    | 0.58277    | 0.79084    |  16.9 |  9.51
+Output  | 0.021093   | 0.021237   | 0.022872   |   0.3 |  0.35
+Modify  | 0.7721     | 0.94925    | 1.131      |  11.8 | 15.50
+Other   |            | 0.07546    |            |       |  1.23
+
+Nlocal:    312.5 ave 324 max 301 min
+Histogram: 2 1 0 3 2 2 3 0 1 2
+Nghost:    1136.5 ave 1152 max 1120 min
+Histogram: 1 0 2 3 3 0 3 1 1 2
+Neighs:    0 ave 0 max 0 min
+Histogram: 16 0 0 0 0 0 0 0 0 0
+FullNghs:  10862 ave 11288 max 10427 min
+Histogram: 1 2 0 3 3 2 1 1 1 2
+
+Total # of neighbors = 173792
+Ave neighs/atom = 34.7584
+Neighbor list builds = 0
+Dangerous builds = 0
+
+write_data ${LOC1}/NVT-EQ-STRUCTURE-5-5 #data file
+write_data ../output/output-1//NVT-EQ-STRUCTURE-5-5 
+
+clear
+
+####--------------------------------------------------------------------
+####SIMULATION-4: RUN NVE AND APPLY MULLER-PLATHE TO GET THERMAL CONDUCTIVITY
+####--------------------------------------------------------------------
+
+log ${LOC2}/log-TC-eq-5-5  #save TD output to this file
+log ../output/output-2//log-TC-eq-5-5  

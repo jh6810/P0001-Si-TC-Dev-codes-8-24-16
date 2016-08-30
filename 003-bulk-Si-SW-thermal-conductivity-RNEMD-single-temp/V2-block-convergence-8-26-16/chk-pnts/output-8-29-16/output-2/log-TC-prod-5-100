@@ -1,0 +1,242 @@
+
+units 		metal
+dimension	3
+boundary	p	p	p
+atom_style	atomic
+
+###READ ATOMS
+read_data ${LOC2}/TC-EQ-STRUCTURE-5-100
+read_data ../output/output-2//TC-EQ-STRUCTURE-5-100
+  orthogonal box = (-1.10372 -5.51858 -1.10372) to (26.1037 130.519 26.1037)
+  1 by 8 by 2 MPI processor grid
+  reading atoms ...
+  5000 atoms
+  reading velocities ...
+  5000 velocities
+
+###load potential
+pair_style sw
+pair_coeff * * pot/Si.sw Si
+Reading potential file pot/Si.sw with DATE: 2007-06-11
+mass * 28.0855
+
+
+####fix ID group-ID thermal/conductivity N edim Nbin keyword value ...
+reset_timestep 0
+
+fix 1 all thermal/conductivity ${swap_every} y ${TC_num_layers} swap ${num_swap}
+fix 1 all thermal/conductivity 2000 y ${TC_num_layers} swap ${num_swap}
+fix 1 all thermal/conductivity 2000 y 362 swap ${num_swap}
+fix 1 all thermal/conductivity 2000 y 362 swap 2
+
+fix       2 all nve
+
+#TEMPERATURE PROFILE
+compute   KE all ke/atom
+variable  temp1 atom c_KE/(1.5*0.00008617)
+compute   layers all chunk/atom bin/1d y lower 2.0 #units reduced
+fix 3 all ave/chunk 1 ${N_TC} ${N_TC} layers v_temp1 file ${LOC2}/TC-TEMP-PROFILE-5-100
+fix 3 all ave/chunk 1 200000 ${N_TC} layers v_temp1 file ${LOC2}/TC-TEMP-PROFILE-5-100
+fix 3 all ave/chunk 1 200000 200000 layers v_temp1 file ${LOC2}/TC-TEMP-PROFILE-5-100
+fix 3 all ave/chunk 1 200000 200000 layers v_temp1 file ../output/output-2//TC-TEMP-PROFILE-5-100
+
+thermo ${thermo_save}
+thermo 2000
+
+variable A equal lx*lz
+variable flux equal f_1/((time-0.000000000001)*v_A) #ADD -0.000001 to avoid division by zero
+thermo_style custom time temp v_A f_1 v_flux
+
+run ${N_TC}
+run 200000
+Neighbor list info ...
+  1 neighbor list requests
+  update every 1 steps, delay 10 steps, check yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 5.77118
+  ghost atom cutoff = 5.77118
+  binsize = 2.88559 -> bins = 10 48 10
+Memory usage per processor = 2.64982 Mbytes
+Time Temp A 1 flux 
+           0    491.51922    740.24445            0           -0 
+           2    501.19986    740.24445   0.20751838 0.00014016882 
+           4    496.56468    740.24445   0.42120771 0.00014225291 
+           6    499.35782    740.24445   0.85449174 0.00019238954 
+           8      497.865    740.24445     1.147443 0.00019376082 
+          10    499.80399    740.24445    1.4435033 0.0001950036 
+          12     503.8416    740.24445    1.7183984 0.00019344943 
+          14     500.0632    740.24445    1.9528522  0.000188437 
+          16    501.40294    740.24445    2.2284879 0.00018815473 
+          18    497.33798    740.24445    2.5741948 0.00019319405 
+          20    501.63027    740.24445    3.0261893 0.00020440473 
+          22    499.80698    740.24445    3.3125328 0.00020340534 
+          24    492.93385    740.24445    3.7728878 0.00021236722 
+          26    497.80392    740.24445    3.9572158 0.00020560858 
+          28    501.94812    740.24445    4.3963946 0.00021211114 
+          30    497.26384    740.24445    4.8232322 0.00021719097 
+          32     500.7227    740.24445    5.1256151 0.00021638186 
+          34    498.69092    740.24445    5.4509548 0.00021658008 
+          36     505.7614    740.24445    5.7989382 0.00021760598 
+          38    500.60358    740.24445    6.2113175 0.00022081317 
+          40    501.46418    740.24445    6.6331084 0.0002240175 
+          42    492.66597    740.24445    6.9971457 0.00022505904 
+          44    495.39964    740.24445    7.2872904 0.00022373722 
+          46    495.73816    740.24445    7.6538053 0.00022477314 
+          48    493.60639    740.24445    8.1450542 0.00022923323 
+          50    494.98092    740.24445    8.4074333 0.00022715289 
+          52     495.5081    740.24445    8.7565996 0.00022748721 
+          54    493.20265    740.24445    9.0967579 0.00022757142 
+          56    501.69498    740.24445     9.381079 0.00022630263 
+          58    497.75408    740.24445    9.6772916 0.00022539832 
+          60    493.69943    740.24445    10.119759 0.00022784722 
+          62    497.82378    740.24445    10.400423 0.00022661266 
+          64    497.67637    740.24445    10.803054 0.0002280297 
+          66    501.87104    740.24445    11.163998 0.0002285076 
+          68    501.05857    740.24445    11.482237 0.00022810902 
+          70    503.46997    740.24445    11.826523 0.00022823586 
+          72    499.34303    740.24445    12.376905 0.00023222255 
+          74    497.60541    740.24445    12.749453 0.00023274731 
+          76    501.56094    740.24445    13.144836 0.00023365034 
+          78    491.04765    740.24445    13.460926 0.00023313377 
+          80     497.6129    740.24445    13.775274 0.00023261359 
+          82    506.55826    740.24445    14.373075 0.00023678854 
+          84    498.37752    740.24445    14.686817 0.00023619637 
+          86    495.84169    740.24445    15.028894 0.00023607685 
+          88     503.5851    740.24445    15.366177 0.00023588917 
+          90     503.1475    740.24445    15.646557 0.00023485571 
+          92    503.54392    740.24445    15.923206 0.0002338124 
+          94    496.35281    740.24445    16.412288 0.00023586641 
+          96    501.00063    740.24445    16.808979 0.00023653474 
+          98    498.92593    740.24445     17.24294 0.00023768954 
+         100    502.60375    740.24445    17.515358 0.00023661586 
+         102    496.56935    740.24445     17.82255 0.00023604483 
+         104     499.8396    740.24445    18.269456 0.00023731059 
+         106    495.32295    740.24445    18.691839 0.00023821605 
+         108    510.71109    740.24445    19.142652 0.00023944357 
+         110    492.47865    740.24445    19.711389 0.00024207469 
+         112    496.48992    740.24445    20.098576 0.00024242204 
+         114     495.9533    740.24445    20.445389 0.00024227877 
+         116    505.20487    740.24445    20.722025 0.00024132318 
+         118    505.57949    740.24445    21.027157 0.00024072621 
+         120     495.1201    740.24445    21.295179 0.00023973138 
+         122    494.55207    740.24445    21.540685 0.00023851985 
+         124    507.95732    740.24445    21.871241 0.00023827396 
+         126    498.68626    740.24445    22.198964 0.00023800551 
+         128    493.40687    740.24445    22.462173 0.00023706456 
+         130    500.36313    740.24445    22.864588 0.00023759914 
+         132    491.89316    740.24445    23.272107 0.00023816976 
+         134    504.96354    740.24445     23.57163 0.00023763459 
+         136    493.16521    740.24445    24.131433 0.00023970056 
+         138    496.39143    740.24445    24.584151 0.00024065837 
+         140    500.42016    740.24445    25.031254 0.00024153463 
+         142    499.16361    740.24445    25.362633 0.00024128529 
+         144    499.93828    740.24445    25.865827 0.00024265471 
+         146    502.42701    740.24445    26.077676 0.00024129086 
+         148    505.15626    740.24445    26.421082 0.00024116469 
+         150    497.94952    740.24445    26.668793 0.00024018006 
+         152    496.35332    740.24445    27.055332 0.00024045517 
+         154    495.76188    740.24445     27.37653 0.00024014996 
+         156    498.93442    740.24445    27.717988 0.00024002802 
+         158    497.61119    740.24445    27.990659 0.00023932104 
+         160    502.63502    740.24445    28.314309 0.00023906215 
+         162    497.30547    740.24445    28.601805 0.00023850817 
+         164     498.4713    740.24445    28.903931 0.00023808822 
+         166    496.72579    740.24445    29.247012 0.00023801167 
+         168    499.57248    740.24445    29.813136 0.00023973046 
+         170    498.00886    740.24445    30.276746 0.00024059418 
+         172     506.3025    740.24445    30.598029 0.00024031996 
+         174    491.68353    740.24445    30.911547 0.00023999176 
+         176    497.12355    740.24445    31.195496 0.00023944406 
+         178    506.48496    740.24445    31.405434 0.00023834697 
+         180    498.06577    740.24445    31.886609 0.0002393099 
+         182    493.23061    740.24445    32.148212 0.00023862189 
+         184    503.35135    740.24445    32.387928 0.00023778813 
+         186    495.70104    740.24445     32.86111 0.00023866796 
+         188    500.31056    740.24445    33.323728 0.00023945316 
+         190    505.57991    740.24445      33.5856 0.00023879452 
+         192    505.46455    740.24445    34.119973 0.0002400669 
+         194    499.90072    740.24445    34.355402 0.00023923138 
+         196    502.04643    740.24445    34.796333 0.0002398293 
+         198     505.6697    740.24445    35.173861 0.00023998256 
+         200    502.05081    740.24445    35.752867 0.00024149365 
+Loop time of 517.742 on 16 procs for 200000 steps with 5000 atoms
+
+Performance: 33.376 ns/day, 0.719 hours/ns, 386.293 timesteps/s
+99.7% CPU use with 16 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 425.95     | 450.59     | 473.11     |  59.2 | 87.03
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 19.331     | 39.595     | 66.726     | 200.7 |  7.65
+Output  | 0.011046   | 0.012361   | 0.024226   |   3.1 |  0.00
+Modify  | 6.2927     | 6.6446     | 7.1538     |   8.8 |  1.28
+Other   |            | 20.9       |            |       |  4.04
+
+Nlocal:    312.5 ave 324 max 303 min
+Histogram: 2 2 2 2 1 1 2 2 1 1
+Nghost:    1136.5 ave 1148 max 1119 min
+Histogram: 1 2 1 0 0 1 3 4 2 2
+Neighs:    0 ave 0 max 0 min
+Histogram: 16 0 0 0 0 0 0 0 0 0
+FullNghs:  10867.6 ave 11219 max 10474 min
+Histogram: 2 0 3 1 2 1 1 1 3 2
+
+Total # of neighbors = 173882
+Ave neighs/atom = 34.7764
+Neighbor list builds = 0
+Dangerous builds = 0
+
+print ${flux} file ${LOC2}/flux-5-100.dat
+print 0.000241493652280928 file ${LOC2}/flux-5-100.dat
+print 0.000241493652280928 file ../output/output-2//flux-5-100.dat
+0.000241493652280928
+
+
+####-------------------SOME INFO ON VARIOUS FIXES---------------------------
+
+
+####write_data snap/data.${N_steps}
+#####dump dump1 all custom ${snap_save} snap/snap.*.lammps id type x y z
+
+
+##### CONSTRUCT A TEMPERATURE PROFILE
+##### THESE BINS ARE NOT RELATED TO thermal/conductivity Bins
+#####  bin/1d args = dim origin delta
+#####    dim = x or y or z
+#####    origin = lower or center or upper or coordinate value (distance units)
+#####    delta = thickness of spatial bins in dim (distance units)
+
+
+
+#####fix ID group-ID ave/chunk Nevery Nrepeat Nfreq chunkID value1 value2 ... keyword args ...
+#####ID, group-ID are documented in fix command
+#####ave/chunk = style name of this fix command
+#####Nevery = use input values every this many timesteps
+#####Nrepeat = # of times to use input values for calculating averages
+#####Nfreq = calculate averages every this many timesteps
+#####chunkID = ID of compute chunk/atom command
+#####one or more input values can be listed
+#####value = vx, vy, vz, fx, fy, fz, density/mass, density/number, temp, c_ID, c_ID[I], f_ID, f_ID[I], v_name
+
+#####For example, if Nevery=2, Nrepeat=6, and Nfreq=100, then values on timesteps 90,92,94,96,98,100 will be used to compute the final aver
+####age on timestep 100. Similarly for timesteps 190,192,194,196,198,200 on timestep 200, etc. If Nrepeat=1 and Nfreq = 100, then no time a
+####veraging is done; values are simply generated on timesteps 100,200,etc.
+
+
+
+
+
+#####fix ID group-ID thermal/conductivity N edim Nbin keyword value ...
+#####ID, group-ID are documented in fix command
+#####thermal/conductivity = style name of this fix command
+#####N = perform kinetic energy exchange every N steps
+#####edim = x or y or z = direction of kinetic energy transfer
+#####Nbin = # of layers in edim direction (must be even number)
+#####zero or more keyword/value pairs may be appended
+#####keyword = swap
+#####swap value = Nswap = number of swaps to perform every N steps
+
+
+Total wall time: 0:11:14

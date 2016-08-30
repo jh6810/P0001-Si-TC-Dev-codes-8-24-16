@@ -1,0 +1,91 @@
+
+units 		metal
+dimension	3
+boundary	p	p	p
+atom_style	atomic
+
+##READ ATOMS
+read_data ${LOC1}/NVT-EQ-STRUCTURE-25-75
+read_data ../output/output-1//NVT-EQ-STRUCTURE-25-75
+  orthogonal box = (-1.10372 -5.51858 -1.10372) to (26.1037 130.519 26.1037)
+  1 by 8 by 2 MPI processor grid
+  reading atoms ...
+  5000 atoms
+  reading velocities ...
+  5000 velocities
+velocity all create ${T} 4928459 rot yes mom yes dist gaussian
+velocity all create 500 4928459 rot yes mom yes dist gaussian
+
+##load potential
+pair_style sw
+pair_coeff * * pot/Si.sw Si
+Reading potential file pot/Si.sw with DATE: 2007-06-11
+mass * 28.0855
+
+reset_timestep 0
+
+#LET THE FIX EQUILIBIRATE
+###fix ID group-ID thermal/conductivity N edim Nbin keyword value ...
+fix 1 all thermal/conductivity ${swap_every} y ${TC_num_layers} swap ${num_swap}
+fix 1 all thermal/conductivity 37500 y ${TC_num_layers} swap ${num_swap}
+fix 1 all thermal/conductivity 37500 y 270 swap ${num_swap}
+fix 1 all thermal/conductivity 37500 y 270 swap 2
+
+fix       2 all nve
+
+thermo ${thermo_save}
+thermo 37500
+thermo_style custom time temp f_1 #v_flux
+run ${N_TC_EQ}
+run 50000
+Neighbor list info ...
+  1 neighbor list requests
+  update every 1 steps, delay 10 steps, check yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 5.77118
+  ghost atom cutoff = 5.77118
+  binsize = 2.88559 -> bins = 10 48 10
+Memory usage per processor = 2.40289 Mbytes
+Time Temp 1 
+           0          500            0 
+        37.5     494.7373   0.24471511 
+          50    497.96966   0.24471511 
+Loop time of 128.15 on 16 procs for 50000 steps with 5000 atoms
+
+Performance: 33.710 ns/day, 0.712 hours/ns, 390.167 timesteps/s
+99.7% CPU use with 16 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 108.22     | 112.92     | 119.44     |  28.6 | 88.12
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 3.8896     | 9.9262     | 15.656     |  94.9 |  7.75
+Output  | 5.0783e-05 | 0.00011577 | 0.00037742 |   0.7 |  0.00
+Modify  | 0.44448    | 0.49744    | 0.56205    |   5.9 |  0.39
+Other   |            | 4.805      |            |       |  3.75
+
+Nlocal:    312.5 ave 326 max 306 min
+Histogram: 5 2 1 1 3 1 0 1 1 1
+Nghost:    1136.38 ave 1149 max 1120 min
+Histogram: 1 0 1 4 1 3 0 1 2 3
+Neighs:    0 ave 0 max 0 min
+Histogram: 16 0 0 0 0 0 0 0 0 0
+FullNghs:  10864.9 ave 11328 max 10601 min
+Histogram: 3 3 2 1 3 0 1 1 1 1
+
+Total # of neighbors = 173838
+Ave neighs/atom = 34.7676
+Neighbor list builds = 0
+Dangerous builds = 0
+
+write_data ${LOC2}/TC-EQ-STRUCTURE-25-75 #data file
+write_data ../output/output-2//TC-EQ-STRUCTURE-25-75 
+clear
+
+####--------------------------------------------------------------------
+####SIMULATION-4: RUN NVE AND APPLY MULLER-PLATHE TO GET THERMAL CONDUCTIVITY
+####--------------------------------------------------------------------
+
+log ${LOC2}/log-TC-prod-25-75  #save TD output to this file
+log ../output/output-2//log-TC-prod-25-75  

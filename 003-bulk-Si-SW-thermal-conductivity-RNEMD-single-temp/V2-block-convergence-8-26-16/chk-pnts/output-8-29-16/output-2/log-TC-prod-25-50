@@ -1,0 +1,150 @@
+
+units 		metal
+dimension	3
+boundary	p	p	p
+atom_style	atomic
+
+###READ ATOMS
+read_data ${LOC2}/TC-EQ-STRUCTURE-25-50
+read_data ../output/output-2//TC-EQ-STRUCTURE-25-50
+  orthogonal box = (-1.10372 -5.51858 -1.10372) to (26.1037 130.519 26.1037)
+  1 by 8 by 2 MPI processor grid
+  reading atoms ...
+  5000 atoms
+  reading velocities ...
+  5000 velocities
+
+###load potential
+pair_style sw
+pair_coeff * * pot/Si.sw Si
+Reading potential file pot/Si.sw with DATE: 2007-06-11
+mass * 28.0855
+
+
+####fix ID group-ID thermal/conductivity N edim Nbin keyword value ...
+reset_timestep 0
+
+fix 1 all thermal/conductivity ${swap_every} y ${TC_num_layers} swap ${num_swap}
+fix 1 all thermal/conductivity 25000 y ${TC_num_layers} swap ${num_swap}
+fix 1 all thermal/conductivity 25000 y 180 swap ${num_swap}
+fix 1 all thermal/conductivity 25000 y 180 swap 2
+
+fix       2 all nve
+
+#TEMPERATURE PROFILE
+compute   KE all ke/atom
+variable  temp1 atom c_KE/(1.5*0.00008617)
+compute   layers all chunk/atom bin/1d y lower 2.0 #units reduced
+fix 3 all ave/chunk 1 ${N_TC} ${N_TC} layers v_temp1 file ${LOC2}/TC-TEMP-PROFILE-25-50
+fix 3 all ave/chunk 1 200000 ${N_TC} layers v_temp1 file ${LOC2}/TC-TEMP-PROFILE-25-50
+fix 3 all ave/chunk 1 200000 200000 layers v_temp1 file ${LOC2}/TC-TEMP-PROFILE-25-50
+fix 3 all ave/chunk 1 200000 200000 layers v_temp1 file ../output/output-2//TC-TEMP-PROFILE-25-50
+
+thermo ${thermo_save}
+thermo 25000
+
+variable A equal lx*lz
+variable flux equal f_1/((time-0.000000000001)*v_A) #ADD -0.000001 to avoid division by zero
+thermo_style custom time temp v_A f_1 v_flux
+
+run ${N_TC}
+run 200000
+Neighbor list info ...
+  1 neighbor list requests
+  update every 1 steps, delay 10 steps, check yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 5.77118
+  ghost atom cutoff = 5.77118
+  binsize = 2.88559 -> bins = 10 48 10
+Memory usage per processor = 2.65037 Mbytes
+Time Temp A 1 flux 
+           0    499.11172    740.24445            0           -0 
+          25    492.58939    740.24445   0.29600892 1.5995198e-05 
+          50    502.04008    740.24445   0.51307412 1.3862289e-05 
+          75    498.11903    740.24445   0.83968092 1.512439e-05 
+         100    501.99343    740.24445    1.1524936 1.5569095e-05 
+         125    504.13561    740.24445    1.4260011 1.5411137e-05 
+         150    500.61049    740.24445    1.7007008 1.5316569e-05 
+         175    498.13045    740.24445    2.0100383 1.5516405e-05 
+         200    493.90944    740.24445     2.244546 1.5160843e-05 
+Loop time of 517.963 on 16 procs for 200000 steps with 5000 atoms
+
+Performance: 33.361 ns/day, 0.719 hours/ns, 386.128 timesteps/s
+99.7% CPU use with 16 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 430.57     | 451.76     | 476.51     |  52.2 | 87.22
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 15.365     | 38.308     | 55.033     | 167.8 |  7.40
+Output  | 0.005367   | 0.005951   | 0.013819   |   2.6 |  0.00
+Modify  | 6.263      | 6.7326     | 7.0577     |   8.3 |  1.30
+Other   |            | 21.16      |            |       |  4.08
+
+Nlocal:    312.5 ave 325 max 302 min
+Histogram: 1 1 2 4 1 2 2 1 1 1
+Nghost:    1136.5 ave 1149 max 1118 min
+Histogram: 1 0 2 1 2 3 0 3 1 3
+Neighs:    0 ave 0 max 0 min
+Histogram: 16 0 0 0 0 0 0 0 0 0
+FullNghs:  10867.5 ave 11317 max 10479 min
+Histogram: 1 2 2 2 2 3 1 1 1 1
+
+Total # of neighbors = 173880
+Ave neighs/atom = 34.776
+Neighbor list builds = 0
+Dangerous builds = 0
+
+print ${flux} file ${LOC2}/flux-25-50.dat
+print 1.51608429653782e-05 file ${LOC2}/flux-25-50.dat
+print 1.51608429653782e-05 file ../output/output-2//flux-25-50.dat
+1.51608429653782e-05
+
+
+####-------------------SOME INFO ON VARIOUS FIXES---------------------------
+
+
+####write_data snap/data.${N_steps}
+#####dump dump1 all custom ${snap_save} snap/snap.*.lammps id type x y z
+
+
+##### CONSTRUCT A TEMPERATURE PROFILE
+##### THESE BINS ARE NOT RELATED TO thermal/conductivity Bins
+#####  bin/1d args = dim origin delta
+#####    dim = x or y or z
+#####    origin = lower or center or upper or coordinate value (distance units)
+#####    delta = thickness of spatial bins in dim (distance units)
+
+
+
+#####fix ID group-ID ave/chunk Nevery Nrepeat Nfreq chunkID value1 value2 ... keyword args ...
+#####ID, group-ID are documented in fix command
+#####ave/chunk = style name of this fix command
+#####Nevery = use input values every this many timesteps
+#####Nrepeat = # of times to use input values for calculating averages
+#####Nfreq = calculate averages every this many timesteps
+#####chunkID = ID of compute chunk/atom command
+#####one or more input values can be listed
+#####value = vx, vy, vz, fx, fy, fz, density/mass, density/number, temp, c_ID, c_ID[I], f_ID, f_ID[I], v_name
+
+#####For example, if Nevery=2, Nrepeat=6, and Nfreq=100, then values on timesteps 90,92,94,96,98,100 will be used to compute the final aver
+####age on timestep 100. Similarly for timesteps 190,192,194,196,198,200 on timestep 200, etc. If Nrepeat=1 and Nfreq = 100, then no time a
+####veraging is done; values are simply generated on timesteps 100,200,etc.
+
+
+
+
+
+#####fix ID group-ID thermal/conductivity N edim Nbin keyword value ...
+#####ID, group-ID are documented in fix command
+#####thermal/conductivity = style name of this fix command
+#####N = perform kinetic energy exchange every N steps
+#####edim = x or y or z = direction of kinetic energy transfer
+#####Nbin = # of layers in edim direction (must be even number)
+#####zero or more keyword/value pairs may be appended
+#####keyword = swap
+#####swap value = Nswap = number of swaps to perform every N steps
+
+
+Total wall time: 0:11:13
