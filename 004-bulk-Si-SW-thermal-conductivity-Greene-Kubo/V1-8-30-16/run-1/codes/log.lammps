@@ -1,0 +1,48 @@
+LAMMPS (30 Jul 2016)
+##NOTE: THIS IS NOT A SHELL SCRIP IT IS A LAMMPS INPUT FILE THE EXT .sh
+##      IS ONLY USED SO THAT TEXT EDITORS TREAT IT LIKE A SHELL SCIPT
+##      BECAUSE BOTH HAVE THE SAME COMMENT FORMALISM i.e. #
+
+##--------------------------------------------------------------------
+##CONTACT
+##--------------------------------------------------------------------
+## JAMES HICKMAN (GMU)
+## 8-23-2016
+
+##--------------------------------------------------------------------
+##COMMENTS
+##--------------------------------------------------------------------
+
+##SEE SHELL SCRIPT 'run.sh' FOR RUN COMMAND
+
+
+##--------------------------------------------------------------------
+##useful variables
+##--------------------------------------------------------------------
+
+##using default metal timestep: 1000 steps=1ps   1,000,000 steps= 1 ns
+
+##0K PARAM
+variable a_o equal 5   	#Guess for un-min lattice constant
+variable rep_x equal 5   	#repeat lattice this many times in given direction
+variable rep_y equal 10  	#repeat lattice this many times in given direction
+variable rep_z equal 5   	#repeat lattice this many times in given direction
+variable T equal 500  		#desired temperature of run
+
+##NPT PARAM
+variable N_EQ equal 2500       #number of steps in equilibration period (NVT AND NPT)
+variable N_PROD_NPT equal 10000    #number of steps in production period
+variable N_PROD_NVT equal 2500    #number of steps in production period
+variable N_GK equal 1000000  #1000 steps=1ps   1,000,000 steps= 1 ns
+
+variable thermo_save equal 100   #TD sampling rate
+
+variable LOC1 string ../output/output-1/
+variable LOC2 string ../output/output-2/
+
+###--------------------------------------------------------------------
+###SIMULATION-1: 0K MINIMIZATION RUN
+###--------------------------------------------------------------------
+
+#log  ${LOC1}/structure-gen.log
+log temporary.log

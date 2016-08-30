@@ -23,7 +23,7 @@ do
 
 	num_atoms=$(awk -v repy=$repy -v repxz=$repxz 'BEGIN {print int(repxz*repxz*repy*8)}')
 
-	num_swap=$(awk -v repy=$repy -v repxz=$repxz 'BEGIN {print int(repxz*repxz*repy*8*100/(1000))}')
+	num_swap=$(awk -v repy=$repy -v repxz=$repxz 'BEGIN {print int(repxz*repxz*repy*8*100/(500))}')
 
 	sed "s/REP_C_IN/$repxz/g" lammps.template.sh  > tmp1
 	sed "s/NUM_LAYERS_IN/$num_bin/g" tmp1  > tmp2
@@ -32,7 +32,7 @@ do
 	sed "s/REP_Y_IN/$repy/g" tmp4  > lammps.input.sh
 	rm tmp1 tmp2 tmp3 tmp4
 
-	mpirun -np 16 ~/bin/lmp_mpi-30jul16-misc  -in lammps.input.sh  #path to your lammps exec
+	mpirun -np 8 ~/bin/lmp_mpi-30jul16-misc  -in lammps.input.sh  #path to your lammps exec
 	 
 
 	#POST PROCESS

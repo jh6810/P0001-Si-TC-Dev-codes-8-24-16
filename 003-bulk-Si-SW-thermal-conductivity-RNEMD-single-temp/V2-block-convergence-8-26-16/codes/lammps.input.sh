@@ -26,7 +26,7 @@
 ##0K PARAM 
 variable a_o equal 5   	#Guess for un-min lattice constant
 variable rep_x equal 5   	#repeat lattice this many times in given direction
-variable rep_y equal 5  	#repeat lattice this many times in given direction
+variable rep_y equal 25  	#repeat lattice this many times in given direction
 variable rep_z equal 5   	#repeat lattice this many times in given direction
 variable T equal 500  		#desired temperature of run
 
@@ -34,16 +34,17 @@ variable T equal 500  		#desired temperature of run
 variable N_EQ equal 7500       #number of steps in equilibration period (NVT AND NPT)
 variable N_PROD_NPT equal 10000    #number of steps in production period 
 variable N_PROD_NVT equal 2000    #number of steps in production period 
-variable thermo_save equal 100   #TD sampling rate 
 
-variable N_TC_EQ equal 50000
-variable N_TC equal 200000
+variable thermo_save equal 1000   #TD sampling rate 
+
+variable N_TC_EQ equal 10000
+variable N_TC equal 500000
 
 #variable N_TC_EQ equal 10000
 #variable N_TC equal 100000
 
-variable swap_every equal 100
-variable TC_num_layers equal 18 
+variable swap_every equal 1000
+variable TC_num_layers equal 90 
 variable num_swap equal 2 
 
 variable LOC1 string ../output/output-1/
@@ -53,52 +54,52 @@ variable LOC2 string ../output/output-2/
 ###SIMULATION-1: 0K MINIMIZATION RUN
 ###--------------------------------------------------------------------
 
-##log  ${LOC1}/structure-gen.log
-#log temporary.log
+#log  ${LOC1}/structure-gen.log
+log temporary.log
 
-#units 		metal
-#dimension	3
-#boundary	p	p	p
-#atom_style	atomic
+units 		metal
+dimension	3
+boundary	p	p	p
+atom_style	atomic
 
-##NOTE: MAKING A VARIABLE CONSTANT IN TIME 
-##variable frozen_value equal ${"Name of original variable that changes in time"}.
-##The variable will then be equal to the value of the original compute at the time the new variable is created and the var "frozen_value" will remain constant. (as opposed to v_variable)
+#NOTE: MAKING A VARIABLE CONSTANT IN TIME 
+#variable frozen_value equal ${"Name of original variable that changes in time"}.
+#The variable will then be equal to the value of the original compute at the time the new variable is created and the var "frozen_value" will remain constant. (as opposed to v_variable)
 
-##lammps commands diamond,fcc,hcp all construct in the 
-##conventional sense (simple cubic lattice)
-#lattice diamond ${a_o} orient x 1 0 0 orient y 0 1 0 orient z 0 0 1  
-#region box block 0 1 0 1 0 1 units lattice
-#create_box   1 box
-#create_atoms 1 box
-#replicate ${rep_x} ${rep_y} ${rep_z}
+#lammps commands diamond,fcc,hcp all construct in the 
+#conventional sense (simple cubic lattice)
+lattice diamond ${a_o} orient x 1 0 0 orient y 0 1 0 orient z 0 0 1  
+region box block 0 1 0 1 0 1 units lattice
+create_box   1 box
+create_atoms 1 box
+replicate ${rep_x} ${rep_y} ${rep_z}
 
-###SOME QUANTITIES OF INTEREST
-#variable a equal (lx)/(${rep_x}) #INSTANTAEOUS LATTICE CONSTANT 
-#compute 1 all pe/atom
-#compute 2 all reduce ave c_1
+##SOME QUANTITIES OF INTEREST
+variable a equal (lx)/(${rep_x}) #INSTANTAEOUS LATTICE CONSTANT 
+compute 1 all pe/atom
+compute 2 all reduce ave c_1
 
-####load potential
-#pair_style sw
-#pair_coeff * * pot/Si.sw Si1.00194017060324
-#mass * 28.0855
+###load potential
+pair_style sw
+pair_coeff * * pot/Si.sw Si
+mass * 28.0855
 
-###RELAX STRUCTURE
-#fix 1 all box/relax iso 0.0 vmax 0.001
-#thermo 1 
-#thermo_style custom step pe c_2 press pxx pyy pzz v_a
-#min_style cg 
-#minimize 1e-25 1e-25 5000 10000 
+##RELAX STRUCTURE
+fix 1 all box/relax iso 0.0 vmax 0.001
+thermo 1 
+thermo_style custom step pe c_2 press pxx pyy pzz v_a
+min_style cg 
+minimize 1e-25 1e-25 5000 10000 
 
-#write_data lammps_data.0K.minimized #data file
+write_data lammps_data.0K.minimized #data file
 
-#print "minimum-lattice constants: ${a}"
+print "minimum-lattice constants: ${a}"
 
-###DEFINE EQ 0K BLOCK SIZE FOR THERMAL EXPANSION CALCULATION
-#variable lxo equal ${rep_x}*${a}  #treated as constants 
-#variable lyo equal ${rep_y}*${a}
-#variable lzo equal ${rep_z}*${a}
-#clear
+##DEFINE EQ 0K BLOCK SIZE FOR THERMAL EXPANSION CALCULATION
+variable lxo equal ${rep_x}*${a}  #treated as constants 
+variable lyo equal ${rep_y}*${a}
+variable lzo equal ${rep_z}*${a}
+clear
 
 ####--------------------------------------------------------------------
 ####SIMULATION-2: Run NPT to determine thermal expansion factor for chosen temperature 
@@ -119,7 +120,7 @@ variable LOC2 string ../output/output-2/
 #variable sf equal (lx/${lxo}+ly/${lyo}+lz/${lzo})/3.0
 
 ##load potential
-#pair_style sw1.00194017060324
+#pair_style sw 
 #pair_coeff * * pot/Si.sw Si
 #mass * 28.0855
 
@@ -198,11 +199,11 @@ variable Pxz equal pxz*0.0001 #GPa
 variable Pyz equal pyz*0.0001 #GPa  
 
 ##Nevery=2, Nrepeat=6, and Nfreq=100, then values on timesteps 90,92,94,96,98,100
-fix ave_press all ave/time 1 ${N_PROD_NVT} ${N_PROD_NVT} v_Pxx v_Pyy v_Pzz v_Pxy v_Pxz v_Pyz  file  ${LOC1}/NVT-ave-pressure-5-5.dat 
+fix ave_press all ave/time 1 ${N_PROD_NVT} ${N_PROD_NVT} v_Pxx v_Pyy v_Pzz v_Pxy v_Pxz v_Pyz  file  ${LOC1}/NVT-ave-pressure-5-25.dat 
 
 run ${N_PROD_NVT} 
 
-write_data ${LOC1}/NVT-EQ-STRUCTURE-5-5 #data file
+write_data ${LOC1}/NVT-EQ-STRUCTURE-5-25 #data file
 
 clear 
 
@@ -210,7 +211,7 @@ clear
 ####SIMULATION-4: RUN NVE AND APPLY MULLER-PLATHE TO GET THERMAL CONDUCTIVITY
 ####--------------------------------------------------------------------
 
-log ${LOC2}/log-TC-eq-5-5  #save TD output to this file	
+log ${LOC2}/log-TC-eq-5-25  #save TD output to this file	
 
 units 		metal
 dimension	3
@@ -218,7 +219,7 @@ boundary	p	p	p
 atom_style	atomic
 
 ##READ ATOMS
-read_data ${LOC1}/NVT-EQ-STRUCTURE-5-5
+read_data ${LOC1}/NVT-EQ-STRUCTURE-5-25
 velocity all create ${T} 4928459 rot yes mom yes dist gaussian
 
 ##load potential
@@ -238,14 +239,14 @@ thermo ${thermo_save}
 thermo_style custom time temp f_1 #v_flux
 run ${N_TC_EQ} 
 
-write_data ${LOC2}/TC-EQ-STRUCTURE-5-5 #data file
+write_data ${LOC2}/TC-EQ-STRUCTURE-5-25 #data file
 clear 
 
 ####--------------------------------------------------------------------
 ####SIMULATION-4: RUN NVE AND APPLY MULLER-PLATHE TO GET THERMAL CONDUCTIVITY
 ####--------------------------------------------------------------------
 
-log ${LOC2}/log-TC-prod-5-5  #save TD output to this file	
+log ${LOC2}/log-TC-prod-5-25  #save TD output to this file	
 
 units 		metal
 dimension	3
@@ -253,7 +254,7 @@ boundary	p	p	p
 atom_style	atomic
 
 ###READ ATOMS
-read_data ${LOC2}/TC-EQ-STRUCTURE-5-5
+read_data ${LOC2}/TC-EQ-STRUCTURE-5-25
 
 ###load potential
 pair_style sw
@@ -272,7 +273,7 @@ fix       2 all nve
 compute   KE all ke/atom
 variable  temp1 atom c_KE/(1.5*0.00008617)
 compute   layers all chunk/atom bin/1d y lower 2.0 #units reduced
-fix 3 all ave/chunk 1 ${N_TC} ${N_TC} layers v_temp1 file ${LOC2}/TC-TEMP-PROFILE-5-5
+fix 3 all ave/chunk 1 ${N_TC} ${N_TC} layers v_temp1 file ${LOC2}/TC-TEMP-PROFILE-5-25
 
 thermo ${thermo_save}
 
@@ -282,7 +283,7 @@ thermo_style custom time temp v_A f_1 v_flux
 
 run ${N_TC} 
 
-print ${flux} file ${LOC2}/flux-5-5.dat
+print ${flux} file ${LOC2}/flux-5-25.dat
 
 
 ####-------------------SOME INFO ON VARIOUS FIXES---------------------------

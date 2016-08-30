@@ -34,10 +34,11 @@ variable T equal 500  		#desired temperature of run
 variable N_EQ equal 7500       #number of steps in equilibration period (NVT AND NPT)
 variable N_PROD_NPT equal 10000    #number of steps in production period 
 variable N_PROD_NVT equal 2000    #number of steps in production period 
+
 variable thermo_save equal NUM_SWAP   #TD sampling rate 
 
-variable N_TC_EQ equal 50000
-variable N_TC equal 200000
+variable N_TC_EQ equal 10000
+variable N_TC equal 500000
 
 #variable N_TC_EQ equal 10000
 #variable N_TC equal 100000
@@ -53,52 +54,52 @@ variable LOC2 string ../output/output-2/
 ###SIMULATION-1: 0K MINIMIZATION RUN
 ###--------------------------------------------------------------------
 
-##log  ${LOC1}/structure-gen.log
-#log temporary.log
+#log  ${LOC1}/structure-gen.log
+log temporary.log
 
-#units 		metal
-#dimension	3
-#boundary	p	p	p
-#atom_style	atomic
+units 		metal
+dimension	3
+boundary	p	p	p
+atom_style	atomic
 
-##NOTE: MAKING A VARIABLE CONSTANT IN TIME 
-##variable frozen_value equal ${"Name of original variable that changes in time"}.
-##The variable will then be equal to the value of the original compute at the time the new variable is created and the var "frozen_value" will remain constant. (as opposed to v_variable)
+#NOTE: MAKING A VARIABLE CONSTANT IN TIME 
+#variable frozen_value equal ${"Name of original variable that changes in time"}.
+#The variable will then be equal to the value of the original compute at the time the new variable is created and the var "frozen_value" will remain constant. (as opposed to v_variable)
 
-##lammps commands diamond,fcc,hcp all construct in the 
-##conventional sense (simple cubic lattice)
-#lattice diamond ${a_o} orient x 1 0 0 orient y 0 1 0 orient z 0 0 1  
-#region box block 0 1 0 1 0 1 units lattice
-#create_box   1 box
-#create_atoms 1 box
-#replicate ${rep_x} ${rep_y} ${rep_z}
+#lammps commands diamond,fcc,hcp all construct in the 
+#conventional sense (simple cubic lattice)
+lattice diamond ${a_o} orient x 1 0 0 orient y 0 1 0 orient z 0 0 1  
+region box block 0 1 0 1 0 1 units lattice
+create_box   1 box
+create_atoms 1 box
+replicate ${rep_x} ${rep_y} ${rep_z}
 
-###SOME QUANTITIES OF INTEREST
-#variable a equal (lx)/(${rep_x}) #INSTANTAEOUS LATTICE CONSTANT 
-#compute 1 all pe/atom
-#compute 2 all reduce ave c_1
+##SOME QUANTITIES OF INTEREST
+variable a equal (lx)/(${rep_x}) #INSTANTAEOUS LATTICE CONSTANT 
+compute 1 all pe/atom
+compute 2 all reduce ave c_1
 
-####load potential
-#pair_style sw
-#pair_coeff * * pot/Si.sw Si1.00194017060324
-#mass * 28.0855
+###load potential
+pair_style sw
+pair_coeff * * pot/Si.sw Si
+mass * 28.0855
 
-###RELAX STRUCTURE
-#fix 1 all box/relax iso 0.0 vmax 0.001
-#thermo 1 
-#thermo_style custom step pe c_2 press pxx pyy pzz v_a
-#min_style cg 
-#minimize 1e-25 1e-25 5000 10000 
+##RELAX STRUCTURE
+fix 1 all box/relax iso 0.0 vmax 0.001
+thermo 1 
+thermo_style custom step pe c_2 press pxx pyy pzz v_a
+min_style cg 
+minimize 1e-25 1e-25 5000 10000 
 
-#write_data lammps_data.0K.minimized #data file
+write_data lammps_data.0K.minimized #data file
 
-#print "minimum-lattice constants: ${a}"
+print "minimum-lattice constants: ${a}"
 
-###DEFINE EQ 0K BLOCK SIZE FOR THERMAL EXPANSION CALCULATION
-#variable lxo equal ${rep_x}*${a}  #treated as constants 
-#variable lyo equal ${rep_y}*${a}
-#variable lzo equal ${rep_z}*${a}
-#clear
+##DEFINE EQ 0K BLOCK SIZE FOR THERMAL EXPANSION CALCULATION
+variable lxo equal ${rep_x}*${a}  #treated as constants 
+variable lyo equal ${rep_y}*${a}
+variable lzo equal ${rep_z}*${a}
+clear
 
 ####--------------------------------------------------------------------
 ####SIMULATION-2: Run NPT to determine thermal expansion factor for chosen temperature 
@@ -119,7 +120,7 @@ variable LOC2 string ../output/output-2/
 #variable sf equal (lx/${lxo}+ly/${lyo}+lz/${lzo})/3.0
 
 ##load potential
-#pair_style sw1.00194017060324
+#pair_style sw 
 #pair_coeff * * pot/Si.sw Si
 #mass * 28.0855
 

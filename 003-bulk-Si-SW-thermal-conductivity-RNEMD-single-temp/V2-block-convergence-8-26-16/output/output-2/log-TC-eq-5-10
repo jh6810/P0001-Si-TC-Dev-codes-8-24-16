@@ -1,0 +1,114 @@
+
+units 		metal
+dimension	3
+boundary	p	p	p
+atom_style	atomic
+
+##READ ATOMS
+read_data ${LOC1}/NVT-EQ-STRUCTURE-5-10
+read_data ../output/output-1//NVT-EQ-STRUCTURE-5-10
+  orthogonal box = (-1.10372 -2.20743 -1.10372) to (26.1037 52.2074 26.1037)
+  2 by 2 by 2 MPI processor grid
+  reading atoms ...
+  2000 atoms
+  reading velocities ...
+  2000 velocities
+velocity all create ${T} 4928459 rot yes mom yes dist gaussian
+velocity all create 500 4928459 rot yes mom yes dist gaussian
+
+##load potential
+pair_style sw
+pair_coeff * * pot/Si.sw Si
+Reading potential file pot/Si.sw with DATE: 2007-06-11
+mass * 28.0855
+
+reset_timestep 0
+
+#LET THE FIX EQUILIBIRATE
+###fix ID group-ID thermal/conductivity N edim Nbin keyword value ...
+fix 1 all thermal/conductivity ${swap_every} y ${TC_num_layers} swap ${num_swap}
+fix 1 all thermal/conductivity 400 y ${TC_num_layers} swap ${num_swap}
+fix 1 all thermal/conductivity 400 y 36 swap ${num_swap}
+fix 1 all thermal/conductivity 400 y 36 swap 2
+
+fix       2 all nve
+
+thermo ${thermo_save}
+thermo 400
+thermo_style custom time temp f_1 #v_flux
+run ${N_TC_EQ}
+run 10000
+Neighbor list info ...
+  1 neighbor list requests
+  update every 1 steps, delay 10 steps, check yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 5.77118
+  ghost atom cutoff = 5.77118
+  binsize = 2.88559 -> bins = 10 19 10
+Memory usage per processor = 2.39512 Mbytes
+Time Temp 1 
+           0          500            0 
+         0.4    505.48713   0.47017696 
+         0.8    496.15558   0.86203341 
+         1.2    510.85118    1.2597138 
+         1.6    495.60195    1.6659412 
+           2    470.88397    2.1131013 
+         2.4    500.71757    2.5743623 
+         2.8     499.2934    3.0698247 
+         3.2    501.93962    3.4869377 
+         3.6    502.24943    3.9393159 
+           4    492.95157    4.3138515 
+         4.4    497.04206    4.7211602 
+         4.8    591.87502    5.2590169 
+         5.2    520.55065    5.6301326 
+         5.6    497.15383     6.106781 
+           6    497.79971    6.5479536 
+         6.4    491.27735    6.9814658 
+         6.8    487.14568     7.610108 
+         7.2    507.12031    8.0402691 
+         7.6    495.92827    8.5566129 
+           8    484.98099    8.9000317 
+         8.4    494.12626    9.2834331 
+         8.8    517.19008    9.7610648 
+         9.2    503.39864    10.323094 
+         9.6    525.76223    10.880428 
+          10    496.63136     11.28164 
+Loop time of 16.3126 on 8 procs for 10000 steps with 2000 atoms
+
+Performance: 52.965 ns/day, 0.453 hours/ns, 613.022 timesteps/s
+99.8% CPU use with 8 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 12.654     | 13.421     | 14.487     |  15.0 | 82.28
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 1.6626     | 2.7342     | 3.4988     |  33.2 | 16.76
+Output  | 0.0003655  | 0.00043169 | 0.00066447 |   0.4 |  0.00
+Modify  | 0.049479   | 0.054164   | 0.058718   |   1.2 |  0.33
+Other   |            | 0.1024     |            |       |  0.63
+
+Nlocal:    250 ave 257 max 240 min
+Histogram: 1 0 0 2 0 2 0 0 0 3
+Nghost:    1066.75 ave 1077 max 1059 min
+Histogram: 2 1 0 0 1 1 2 0 0 1
+Neighs:    0 ave 0 max 0 min
+Histogram: 8 0 0 0 0 0 0 0 0 0
+FullNghs:  8685.75 ave 8933 max 8363 min
+Histogram: 1 0 0 2 1 1 0 0 1 2
+
+Total # of neighbors = 69486
+Ave neighs/atom = 34.743
+Neighbor list builds = 0
+Dangerous builds = 0
+
+write_data ${LOC2}/TC-EQ-STRUCTURE-5-10 #data file
+write_data ../output/output-2//TC-EQ-STRUCTURE-5-10 
+clear
+
+####--------------------------------------------------------------------
+####SIMULATION-4: RUN NVE AND APPLY MULLER-PLATHE TO GET THERMAL CONDUCTIVITY
+####--------------------------------------------------------------------
+
+log ${LOC2}/log-TC-prod-5-10  #save TD output to this file
+log ../output/output-2//log-TC-prod-5-10  
